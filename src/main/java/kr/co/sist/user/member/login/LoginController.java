@@ -7,10 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import kr.co.sist.user.member.StudentDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import kr.co.sist.user.member.UserDTO;
+import kr.co.sist.user.member.UserDomain;
 
+// user 모듈의 로그인 컨트롤러 - 빈 이름을 명시적으로 지정하여 충돌 방지
 @RequestMapping("/user/member/login")
-@Controller
+@Controller("userLoginController")
 public class LoginController {
 	
 	@Autowired
@@ -19,12 +23,23 @@ public class LoginController {
 	@GetMapping("/loginFrm")
 	public String stuLogin() {
 		
-		return "/loginFrm";
+		return "user/member/login/loginFrm";
 	}
 	@PostMapping("/loginProcess")
-	public String stuLoginProcess(StudentDTO sDTO,Model model,HttpSession session,HttpServletRequest request) {
+	public String stuLoginProcess(UserDTO sDTO, Model model, HttpSession session) {
 		
-		return "/loginFrm";
+		UserDomain sd = ls.loginUser(sDTO);
+		
+		if(sd != null) { // 로그인 성공
+			// 세션에 필요한 정보 저장
+			session.setAttribute("userId", sd.getId());
+			session.setAttribute("userName", sd.getName());
+			
+			return "redirect:/"; // 메인 페이지로 이동
+		} else { // 로그인 실패
+			model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
+			return "user/member/login/loginFrm";
+		}
 	}
 	
 }

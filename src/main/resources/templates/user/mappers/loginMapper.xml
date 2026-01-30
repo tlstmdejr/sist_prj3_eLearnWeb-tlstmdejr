@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace를 Mapper Interface 경로로 변경 -->
+<mapper namespace="kr.co.sist.user.member.login.LoginMapper">
+
+<!-- 아이디에 해당하는 사용자 정보를 검색 -->
+<select id="selectOneUserInfo" parameterType="String" resultType="StudentDomain">
+select USER_ID , NAME, EMAIL, PASSWORD, PHONE, INTRO, PROFILE as img, BIRTH, ACTIVATION
+from USERS
+where USER_ID=#{id}
+</select>
+
+</mapper>

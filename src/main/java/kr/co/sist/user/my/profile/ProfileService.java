@@ -4,7 +4,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import kr.co.sist.user.member.StudentDomain;
+import kr.co.sist.user.member.UserDomain;
 
 /**
  * 내 프로필 관련 비즈니스 로직 Service
@@ -23,8 +23,8 @@ public class ProfileService {
      * @param userId 사용자 아이디
      * @return StudentDomain 프로필 정보
      */
-    public StudentDomain getProfile(String userId) {
-        StudentDomain sd = null;
+    public UserDomain getProfile(String userId) {
+        UserDomain sd = null;
         
         try {
             // DB에서 프로필 정보 조회

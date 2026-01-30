@@ -22,17 +22,18 @@ public String joinStu() {
 }
 
 @PostMapping("/joinProcess")
-public String joinStuProcess(StudentDTO sDTO, Model model) {
+public String joinStuProcess(UserDTO sDTO, Model model) {
 
     return "";
 }
 // 중복 확인
-@GetMapping("/overlapChk")
+// 중복 확인
+@GetMapping("/overlapId")
 @ResponseBody
 public String chkId(String id) {
     return "";
 }
-@GetMapping("/overlapChk")  
+@GetMapping("/overlapNick")  
 @ResponseBody   
 public String chkNick(String name) {
     return "";
@@ -48,7 +49,7 @@ public String updateStuInfo(Model model) {
     return "";  
 }
 @PostMapping("/updateInfoProcess")
-public String updateStuInfoProcess(MultipartFile mf, StudentDTO sDTO, HttpSession session) {
+public String updateStuInfoProcess(MultipartFile mf, UserDTO sDTO, HttpSession session) {
     return "";
 }
 // 이메일, 전화번호처럼 한 가지씩만 데이터가 변경되는 메소드는 모두 별개로 있어야 한다.
@@ -60,7 +61,7 @@ public String updateStuPhoneProcess() {
 }
 // 학생 회원 탈퇴
 @PostMapping("/withdrawalProcess")
-public String stuWithdrawalProcess(StudentDTO sDTO, HttpSession session) {
+public String stuWithdrawalProcess(UserDTO sDTO, HttpSession session) {
     return "";
 }
 // 세션에서 받아온 id를 DTO에 넣어 서비스로 전달

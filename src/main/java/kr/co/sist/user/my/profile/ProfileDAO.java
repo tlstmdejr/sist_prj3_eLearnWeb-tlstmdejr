@@ -5,7 +5,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
 import kr.co.sist.dao.MyBatisHandler;
-import kr.co.sist.user.member.StudentDomain;
+import kr.co.sist.user.member.UserDomain;
 
 /**
  * 내 프로필 관련 DB 접근 DAO
@@ -22,8 +22,8 @@ public class ProfileDAO {
      * @return StudentDomain 프로필 정보
      * @throws PersistenceException DB 예외
      */
-    public StudentDomain selectProfile(String userId) throws PersistenceException {
-        StudentDomain sd = null;
+    public UserDomain selectProfile(String userId) throws PersistenceException {
+        UserDomain sd = null;
         
         SqlSession ss = MyBatisHandler.getInstance().getMyBatisHandler(false);
         // TODO: mapper 호출

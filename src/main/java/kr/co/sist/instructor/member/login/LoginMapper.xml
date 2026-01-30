@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.co.sist.member.login">
+<mapper namespace="kr.co.sist.instructor.member.login">
 <!--아이디에 해당하는 비밀번호를 검색  -->
 <select id="selectOneUserInfo" parameterType="LoginDTO" resultType="memberDomain">
 select name,email,password

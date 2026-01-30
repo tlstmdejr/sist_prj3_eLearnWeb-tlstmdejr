@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpSession;
-import kr.co.sist.user.member.StudentDomain;
+import kr.co.sist.user.member.UserDomain;
 
 /**
  * 내 프로필 조회 Controller
