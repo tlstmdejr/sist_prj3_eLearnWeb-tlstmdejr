@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th = "http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<th:block th:replace = "~{fragments/cdn :: cdn}"/>
+<style type = "text/css">
+#wrap{margin: 0px auto; width: 1000px; height: 1200px}
+#header{height: 150px}
+#container{height: 950px}
+#footer{height: 100px}
+</style>
+<script type="text/javascript">
+$(function() {
+
+}); // ready
+</script>
+</head>
+<body>
+<div id = "wrap">
+<div id = "header">
+<th:block th:replace = "~{fragments/header :: header}"/>
+</div>
+<div id = "container">
+
+</div>
+<div id = "footer">
+<th:block th:replace = "~{fragments/footer :: footer}"/>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.user.member">
+<!-- 회원가입  -->
+<insert id="insertStu" parameterType="StudentDTO">
+insert into spring_stu(
+ id,password,name,email,addr)
+ values(#{id},#{password},#{name},#{email},#{addr})
+
+</insert>
+<!--input_date가 컬럼명과 setter명(inputdate) 이다르다  -->
+<resultMap type="StudentDomain" id="memberResult">
+<result column="id" property="id"/>
+<result column="name" property="name"/>
+<result column="email" property="email"/>
+<result column="addr" property="addr"/>
+<result column="input_date" property="inputDate"/>
+</resultMap>
+<!-- 회원조회  -->
+<select id="selectOneStu" resultMap="memberResult">
+select id,name,email,addr,input_date
+from spring_member
+where id=#{id}
+</select>
+</mapper>
+
+
+
+
+
+
+
+
+

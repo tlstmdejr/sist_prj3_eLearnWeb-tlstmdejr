@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>회원가입 - 이러닝</title>
+<th:block th:replace="~{fragments/cdn :: cdn}"/>
+<style type="text/css">
+#wrap { margin: 0px auto; width: 1000px; min-height: 1000px; }
+#header { height: 150px; }
+#container { min-height: 750px; display: flex; justify-content: center; padding: 30px 0; }
+#footer { height: 100px; }
+
+/* 회원가입 폼 스타일 */
+.join-box {
+    width: 500px;
+    padding: 40px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.join-box h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+.join-box .form-group {
+    margin-bottom: 20px;
+}
+.join-box label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+.join-box label span {
+    color: #e74c3c;
+}
+.join-box input[type="text"],
+.join-box input[type="password"],
+.join-box input[type="email"],
+.join-box input[type="tel"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.join-box input:focus {
+    border-color: #4a90d9;
+    outline: none;
+}
+.join-box .input-group {
+    display: flex;
+    gap: 10px;
+}
+.join-box .input-group input {
+    flex: 1;
+}
+.join-box .btn-check {
+    padding: 12px 15px;
+    background: #666;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.join-box .btn-check:hover {
+    background: #555;
+}
+.join-box .btn-join {
+    width: 100%;
+    padding: 14px;
+    background: #4a90d9;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.join-box .btn-join:hover {
+    background: #357abd;
+}
+.join-box .links {
+    text-align: center;
+    margin-top: 20px;
+}
+.join-box .links a {
+    color: #666;
+    text-decoration: none;
+}
+.join-box .links a:hover {
+    color: #4a90d9;
+}
+.check-msg {
+    font-size: 12px;
+    margin-top: 5px;
+}
+.check-msg.success { color: #27ae60; }
+.check-msg.error { color: #e74c3c; }
+</style>
+<script type="text/javascript">
+$(function() {
+    // 아이디 중복 확인 (AJAX)
+    $('#btnChkId').click(function() {
+        var id = $('#id').val().trim();
+        if (id === '') {
+            alert('아이디를 입력해주세요.');
+            return;
+        }
+        
+        $.ajax({
+            url: '/user/member/overlapChkId',
+            type: 'GET',
+            data: { id: id },
+            success: function(result) {
+                if (result === 'available') {
+                    $('#idCheckMsg').text('사용 가능한 아이디입니다.').removeClass('error').addClass('success');
+                } else {
+                    $('#idCheckMsg').text('이미 사용 중인 아이디입니다.').removeClass('success').addClass('error');
+                }
+            }
+        });
+    });
+}); // ready
+</script>
+</head>
+<body>
+<div id="wrap">
+    <div id="header">
+        <th:block th:replace="~{fragments/header :: header}"/>
+    </div>
+    <div id="container">
+        <div class="join-box">
+            <h2>회원가입</h2>
+            
+            <form id="joinForm" th:action="@{/user/member/joinProcess}" method="post">
+                
+                <div class="form-group">
+                    <label for="id">아이디 <span>*</span></label>
+                    <div class="input-group">
+                        <input type="text" id="id" name="id" placeholder="아이디를 입력하세요">
+                        <button type="button" id="btnChkId" class="btn-check">중복확인</button>
+                    </div>
+                    <div id="idCheckMsg" class="check-msg"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호 <span>*</span></label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">이름(닉네임) <span>*</span></label>
+                    <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">이메일 <span>*</span></label>
+                    <input type="email" id="email" name="email" placeholder="이메일을 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">전화번호</label>
+                    <input type="tel" id="phone" name="phone" placeholder="전화번호를 입력하세요 (선택)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="birth">생년월일</label>
+                    <input type="date" id="birth" name="birth">
+                </div>
+                
+                <button type="submit" class="btn-join">가입하기</button>
+            </form>
+            
+            <div class="links">
+                <a th:href="@{/user/member/login/loginFrm}">이미 계정이 있으신가요? 로그인</a>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <th:block th:replace="~{fragments/footer :: footer}"/>
+    </div>
+</div>
+</body>
+</html>
