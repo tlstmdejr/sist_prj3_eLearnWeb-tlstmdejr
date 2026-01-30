@@ -26,14 +26,14 @@ public class LoginController {
 		return "user/member/login/loginFrm";
 	}
 	@PostMapping("/loginProcess")
-	public String stuLoginProcess(UserDTO sDTO, Model model, HttpSession session) {
+	public String stuLoginProcess(UserDTO uDTO, Model model, HttpSession session) {
+
+		UserDomain ud = ls.loginUser(uDTO);
 		
-		UserDomain sd = ls.loginUser(sDTO);
-		
-		if(sd != null) { // 로그인 성공
+		if(ud != null) { // 로그인 성공
 			// 세션에 필요한 정보 저장
-			session.setAttribute("userId", sd.getId());
-			session.setAttribute("userName", sd.getName());
+			session.setAttribute("userId", ud.getId());
+			session.setAttribute("userName", ud.getName());
 			
 			return "redirect:/"; // 메인 페이지로 이동
 		} else { // 로그인 실패

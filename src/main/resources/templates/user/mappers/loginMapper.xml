@@ -6,7 +6,7 @@
 <mapper namespace="kr.co.sist.user.member.login.LoginMapper">
 
 <!-- 아이디에 해당하는 사용자 정보를 검색 -->
-<select id="selectOneUserInfo" parameterType="String" resultType="StudentDomain">
+<select id="selectOneUserInfo" parameterType="String" resultType="UserDomain">
 select USER_ID , NAME, EMAIL, PASSWORD, PHONE, INTRO, PROFILE as img, BIRTH, ACTIVATION
 from USERS
 where USER_ID=#{id}

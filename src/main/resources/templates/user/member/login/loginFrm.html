@@ -118,8 +118,8 @@ $(function() {
             <h2>로그인</h2>
             
             <!-- 에러 메시지 표시 영역 -->
-            <div class="error-msg" th:if="${errFlag != null}" th:text="${errMsg}"></div>
-            
+            <div class="error-msg" th:if="${errFlag != null}"></div>
+            <div th:text="${msg}"></div>
             <form id="loginForm" th:action="@{/user/member/login/loginProcess}" method="post">
                 <div class="form-group">
                     <label for="id">아이디</label>
