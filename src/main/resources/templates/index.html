@@ -22,7 +22,8 @@ $(function() {
 <th:block th:replace = "~{fragments/header :: header}"/>
 </div>
 <div id = "container">
-
+    <a th:href="@{/user/member/login/loginFrm}">로그인</a>
+    <a th:href="@{/user/member/joinFrm}">회원가입</a>
 </div>
 <div id = "footer">
 <th:block th:replace = "~{fragments/footer :: footer}"/>

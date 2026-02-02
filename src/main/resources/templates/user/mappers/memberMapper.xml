@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.user.member.UserMapper">
+
+<!-- 회원가입 -->
+<insert id="insertUser" parameterType="UserDTO">
+INSERT INTO users(
+    USER_ID, PASSWORD, NAME, EMAIL, PHONE, BIRTH,
+    ACTIVATION, PROFILE, REGDATE, REGIP
+)
+VALUES(#{id},#{password},#{name}, #{email, jdbcType=VARCHAR}, #{phone, jdbcType=VARCHAR}, #{birth, jdbcType=DATE},1,'default.png',SYSDATE, #{regip, jdbcType=VARCHAR})
+</insert>
+
+</mapper>
