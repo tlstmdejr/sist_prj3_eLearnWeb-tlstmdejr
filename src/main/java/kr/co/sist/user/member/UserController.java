@@ -26,6 +26,7 @@ public class UserController {
         return "/user/member/joinFrm";
     }
 
+    // 회원가입 처리
     @PostMapping("/joinProcess")
     public String joinUserProcess(UserDTO sDTO, Model model, HttpServletRequest request) {
 
@@ -36,50 +37,57 @@ public class UserController {
     }
 
     // 중복 확인
-    // 중복 확인
     @GetMapping("/overlapId")
     @ResponseBody
     public String chkId(String id) {
-        return "";
+        if (us.chkUserId(id)) {
+            return "available";
+        }
+        return "used";
     }
 
-    @GetMapping("/overlapNick")
+    // 닉네임 중복 확인
+    @GetMapping("/overlapName")
     @ResponseBody
-    public String chkNick(String name) {
-        return "";
+    public String chkName(String name) {
+        if (us.chkUserName(name)) {
+            return "available";
+        }
+        return "used";
     }
 
-    // 학생 내 정보 조회
-    @GetMapping("/searchInfo")
-    public String searchStuInfo(HttpSession session, Model model) {
-        return "";
-    }// setting
+    // // 학생 내 정보 조회
+    // @GetMapping("/searchInfo")
+    // public String searchStuInfo(HttpSession session, Model model) {
+    // return "";
+    // }// setting
 
-    // 학생 내 정보 수정
-    @PostMapping("/updateInfo")
-    public String updateStuInfo(Model model) {
-        return "";
-    }// setting
+    // // 학생 내 정보 수정
+    // @PostMapping("/updateInfo")
+    // public String updateStuInfo(Model model) {
+    // return "";
+    // }// setting
 
-    @PostMapping("/updateInfoProcess")
-    public String updateStuInfoProcess(MultipartFile mf, UserDTO sDTO, HttpSession session) {
-        return "";
-    }// setting
+    // @PostMapping("/updateInfoProcess")
+    // public String updateStuInfoProcess(MultipartFile mf, UserDTO sDTO,
+    // HttpSession session) {
+    // return "";
+    // }// setting
 
-    // 이메일, 전화번호처럼 한 가지씩만 데이터가 변경되는 메소드는 모두 별개로 있어야 한다.
-    public String updateStuEmailProcess() {
-        return "";
-    }// setting
+    // // 이메일, 전화번호처럼 한 가지씩만 데이터가 변경되는 메소드는 모두 별개로 있어야 한다.
+    // public String updateStuEmailProcess() {
+    // return "";
+    // }// setting
 
-    public String updateStuPhoneProcess() {
-        return "";
-    }// setting
+    // public String updateStuPhoneProcess() {
+    // return "";
+    // }// setting
 
-    // 학생 회원 탈퇴
-    @PostMapping("/withdrawalProcess")
-    public String stuWithdrawalProcess(UserDTO sDTO, HttpSession session) {
-        return "";
-    }
-    // 세션에서 받아온 id를 DTO에 넣어 서비스로 전달
+    // // 학생 회원 탈퇴
+    // @PostMapping("/withdrawalProcess")
+    // public String stuWithdrawalProcess(UserDTO sDTO, HttpSession session) {
+    // return "";
+    // }
+    // // 세션에서 받아온 id를 DTO에 넣어 서비스로 전달
 
 }

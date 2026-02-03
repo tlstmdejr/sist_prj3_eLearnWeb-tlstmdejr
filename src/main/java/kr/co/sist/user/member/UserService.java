@@ -4,8 +4,12 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.Encryptors;
+
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Service;
 
 /**
@@ -58,10 +62,10 @@ public class UserService {
         sDTO.setPassword(bpe.encode(sDTO.getPassword()));
 
         // 암호화
-        TextEncryptor te = Encryptors.text(key, salt);
+        TextEncryptor te = createEncryptor();
         sDTO.setName(te.encrypt(sDTO.getName()));
         String email = sDTO.getEmail();
-        if (!email.isEmpty()) {
+        if (email != null && !email.isEmpty()) {
             sDTO.setEmail(te.encrypt(email));
         }
         try {
@@ -81,10 +85,37 @@ public class UserService {
      */
     public boolean chkUserId(String stuId) {
         boolean isAvailable = false;
+        try {
+            String id = um.selectId(stuId);
+            if (id == null) {
+                isAvailable = true;
+            }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+        return isAvailable;
+    }
 
-        // TODO: 아이디 중복확인 로직 구현
-        // sDAO.selectChkId() 호출하여 중복 확인
+    /**
+     * 학생 이름 중복확인 (AJAX)
+     * 
+     * @param name 확인할 이름
+     * @return boolean 중복 여부 (true: 사용가능, false: 중복)
+     */
+    public boolean chkUserName(String name) {
+        boolean isAvailable = false;
+        try {
+            // 이름은 암호화되어 저장되므로 암호화 후 조회
+            TextEncryptor te = createEncryptor();
+            String encName = te.encrypt(name);
 
+            String result = um.selectName(encName);
+            if (result == null) {
+                isAvailable = true;
+            }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
         return isAvailable;
     }
 
@@ -169,6 +200,36 @@ public class UserService {
         // 2. sDAO.deleteStu() 호출 (실제 삭제 또는 activation 변경)
 
         return isWithdrawn;
+    }
+
+    /**
+     * 결정적 암호화를 위한 Encryptor 생성 (검색 가능하도록 고정 IV 사용)
+     */
+    private TextEncryptor createEncryptor() {
+        return new TextEncryptor() {
+            // 고정 IV 사용 (0으로 초기화된 16바이트)
+            private final AesBytesEncryptor encryptor = new AesBytesEncryptor(key, salt, new BytesKeyGenerator() {
+                @Override
+                public int getKeyLength() {
+                    return 16;
+                }
+
+                @Override
+                public byte[] generateKey() {
+                    return new byte[16];
+                }
+            });
+
+            @Override
+            public String encrypt(String text) {
+                return new String(Hex.encode(encryptor.encrypt(text.getBytes(StandardCharsets.UTF_8))));
+            }
+
+            @Override
+            public String decrypt(String encryptedText) {
+                return new String(encryptor.decrypt(Hex.decode(encryptedText)), StandardCharsets.UTF_8);
+            }
+        };
     }
 
 }

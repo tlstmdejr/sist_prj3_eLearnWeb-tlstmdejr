@@ -12,5 +12,17 @@ INSERT INTO users(
 )
 VALUES(#{id},#{password},#{name}, #{email, jdbcType=VARCHAR}, #{phone, jdbcType=VARCHAR}, #{birth, jdbcType=DATE},1,'default.png',SYSDATE, #{regip, jdbcType=VARCHAR})
 </insert>
+<!-- 아이디 중복 확인 -->
+<select id="selectId" resultType="String" parameterType="String">
+    SELECT user_id FROM users WHERE user_id = #{id}
+</select>
+<!-- 이름 중복 확인 -->
+<select id="selectName" resultType="String" parameterType="String">
+    SELECT name FROM users WHERE name = #{name}
+</select>
+
+
+
+
 
 </mapper>

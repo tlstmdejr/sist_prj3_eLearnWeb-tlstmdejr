@@ -18,5 +18,24 @@ public interface UserMapper {
      * @throws PersistenceException DB 예외
      */
     public int insertUser(UserDTO uDTO) throws PersistenceException;
+
+    /**
+     * 아이디 중복 확인
+     * 
+     * @param id 확인할 아이디
+     * @return String 사용중인 아이디 (없으면 null)
+     * @throws PersistenceException DB 예외
+     */
+    public String selectId(String id) throws PersistenceException;
+
+    /**
+     * 이름 중복 확인
+     * 
+     * @param name 확인할 이름
+     * @return String 사용중인 이름 (없으면 null)
+     * @throws PersistenceException DB 예외
+     */
+    public String selectName(String name) throws PersistenceException;
+
 }
 // interface
