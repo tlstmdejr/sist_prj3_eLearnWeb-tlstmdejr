@@ -7,7 +7,7 @@
 ```mermaid
 graph TD
     Data[사용자 입력: '홍길동'] --> Enc1{MemberService 방식<br>(Random IV)}
-    Data --> Enc2{UserService 방식<br>(Fixed IV)}
+    Data --> Enc2{UserService 방식(Fixed IV)}
     
     Enc1 --> |1회차 암호화| Res1[결과: a8f9...]
     Enc1 --> |2회차 암호화| Res2[결과: b2c3...]
