@@ -1,24 +1,79 @@
 package kr.co.sist.user.my.setting;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.exceptions.PersistenceException;
 
-import kr.co.sist.user.member.UserDomain;
-
-/**
- * 학생 로그인 관련 MyBatis Mapper Interface
- * - XML의 namespace와 메서드명이 일치해야 함
- */
 @Mapper
 public interface SettingMapper {
 
     /**
-     * 아이디로 사용자 정보 조회
-     * 
-     * @param userId 사용자 아이디
-     * @return StudentDomain 사용자 정보
-     * @throws PersistenceException DB 예외
+     * 설정 페이지 정보 조회
+     * @param userId
+     * @return
+     * @throws PersistenceException
      */
-    public UserDomain selectOneUserInfo(String userId) throws PersistenceException;
+    public SettingDomain selectSettingInfo(String userId) throws PersistenceException;
+
+    /**
+     * 프로필 이미지 변경
+     * @param userId
+     * @param imgPath
+     * @return
+     * @throws PersistenceException
+     */
+    public int updateImg(@Param("userId") String userId, @Param("imgPath") String imgPath) throws PersistenceException;
+
+    /**
+     * 닉네임 변경
+     * @param userId
+     * @param name
+     * @return
+     * @throws PersistenceException
+     */
+    public int updateNick(@Param("userId") String userId, @Param("name") String name) throws PersistenceException;
+
+    /**
+     * 자기소개 변경
+     * @param userId
+     * @param intro
+     * @return
+     * @throws PersistenceException
+     */
+    public int updateIntro(@Param("userId") String userId, @Param("intro") String intro) throws PersistenceException;
+
+    /**
+     * 이메일 변경
+     * @param userId
+     * @param email
+     * @return
+     * @throws PersistenceException
+     */
+    public int updateEmail(@Param("userId") String userId, @Param("email") String email) throws PersistenceException;
+
+    /**
+     * 비밀번호 조회 (현재 비밀번호 확인용)
+     * @param userId
+     * @return
+     * @throws PersistenceException
+     */
+    public String selectPassword(String userId) throws PersistenceException;
+
+    /**
+     * 비밀번호 변경
+     * @param userId
+     * @param password
+     * @return
+     * @throws PersistenceException
+     */
+    public int updatePass(@Param("userId") String userId, @Param("password") String password) throws PersistenceException;
+
+    /**
+     * 휴대폰 번호 변경
+     * @param userId
+     * @param phone
+     * @return
+     * @throws PersistenceException
+     */
+    public int updatePhone(@Param("userId") String userId, @Param("phone") String phone) throws PersistenceException;
 }
-// interface

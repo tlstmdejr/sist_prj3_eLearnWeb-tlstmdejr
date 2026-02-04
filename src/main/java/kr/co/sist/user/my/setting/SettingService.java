@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class SettingService {
 
     @Autowired
-    private SettingDAO sDAO;
+    private SettingMapper sm;
 
     // 암호화 키 (application.properties에서 주입)
     @Value("${user.crypto.key:defaultKey}")
@@ -41,7 +41,7 @@ public class SettingService {
         SettingDomain sd = null;
         
         try {
-            sd = sDAO.selectSettingInfo(userId);
+            sd = sm.selectSettingInfo(userId);
             
             // 암호화된 정보 복호화 (필요시)
             // TextEncryptor te = Encryptors.text(key, salt);
@@ -68,7 +68,7 @@ public class SettingService {
         int result = 0;
         
         try {
-            result = sDAO.updateImg(userId, imgPath);
+            result = sm.updateImg(userId, imgPath);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
@@ -86,7 +86,7 @@ public class SettingService {
         int result = 0;
         
         try {
-            result = sDAO.updateNick(userId, name);
+            result = sm.updateNick(userId, name);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
@@ -104,7 +104,7 @@ public class SettingService {
         int result = 0;
         
         try {
-            result = sDAO.updateIntro(userId, intro);
+            result = sm.updateIntro(userId, intro);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
@@ -130,7 +130,7 @@ public class SettingService {
             // TextEncryptor te = Encryptors.text(key, salt);
             // email = te.encrypt(email);
             
-            result = sDAO.updateEmail(userId, email);
+            result = sm.updateEmail(userId, email);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
@@ -150,7 +150,7 @@ public class SettingService {
         
         try {
             // 1. 현재 비밀번호 확인
-            String dbPass = sDAO.selectPassword(userId);
+            String dbPass = sm.selectPassword(userId);
             BCryptPasswordEncoder bce = new BCryptPasswordEncoder();
             
             if (!bce.matches(currentPass, dbPass)) {
@@ -159,7 +159,7 @@ public class SettingService {
             
             // 2. 새 비밀번호 암호화 후 저장
             String encodedPass = bce.encode(newPass);
-            result = sDAO.updatePass(userId, encodedPass);
+            result = sm.updatePass(userId, encodedPass);
             
         } catch (PersistenceException pe) {
             pe.printStackTrace();
@@ -178,7 +178,7 @@ public class SettingService {
         int result = 0;
         
         try {
-            result = sDAO.updatePhone(userId, phone);
+            result = sm.updatePhone(userId, phone);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
