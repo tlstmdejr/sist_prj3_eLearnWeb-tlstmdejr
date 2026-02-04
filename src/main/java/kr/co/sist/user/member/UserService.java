@@ -27,23 +27,6 @@ public class UserService {
     @Autowired
     private UserMapper um;
 
-    // /** 로그인서비스로이전(id확인 비밀번호확인,암호화까지)
-    // * 학생 로그인 처리
-    // * @param userId 사용자 아이디
-    // * @param userPass 사용자 비밀번호
-    // * @return UserSessionDTO 로그인 성공 시 세션에 저장할 사용자 정보
-    // */
-    // public UserSessionDTO loginUser(String userId, String userPass) {
-    // UserSessionDTO usDTO = null;
-
-    // // TODO: 로그인 로직 구현
-    // // 1. sDAO.selectLogin() 호출하여 사용자 정보 조회
-    // // 2. 비밀번호 일치 확인 (BCrypt 등)
-    // // 3. 로그인 성공 시 UserSessionDTO 생성 및 반환
-
-    // return usDTO;
-    // }
-
     /**
      * 학생 회원가입 처리
      * 
@@ -119,37 +102,67 @@ public class UserService {
         return isAvailable;
     }
 
+    /**
+     * 결정적 암호화를 위한 Encryptor 생성 (검색 가능하도록 고정 IV 사용)
+     */
+    private TextEncryptor createEncryptor() {
+        return new TextEncryptor() {
+            // 고정 IV 사용 (0으로 초기화된 16바이트)
+            private final AesBytesEncryptor encryptor = new AesBytesEncryptor(key, salt, new BytesKeyGenerator() {
+                @Override
+                public int getKeyLength() {
+                    return 16;
+                }
+
+                @Override
+                public byte[] generateKey() {
+                    return new byte[16];
+                }
+            });
+
+            @Override
+            public String encrypt(String text) {
+                return new String(Hex.encode(encryptor.encrypt(text.getBytes(StandardCharsets.UTF_8))));
+            }
+
+            @Override
+            public String decrypt(String encryptedText) {
+                return new String(encryptor.decrypt(Hex.decode(encryptedText)), StandardCharsets.UTF_8);
+            }
+        };
+    }
+
     // /**
-    //  * 학생 정보 상세조회 (마이페이지)
-    //  * - 학생/강사 DB구조가 다르므로 따로 구현
-    //  * 
-    //  * @param stuId 조회할 학생 아이디
-    //  * @return StudentDomain 학생 상세정보
-    //  */
+    // * 학생 정보 상세조회 (마이페이지)
+    // * - 학생/강사 DB구조가 다르므로 따로 구현
+    // *
+    // * @param stuId 조회할 학생 아이디
+    // * @return StudentDomain 학생 상세정보
+    // */
     // public UserDomain getUserDetail(String stuId) {
-    //     UserDomain sd = null;
+    // UserDomain sd = null;
 
-    //     // TODO: 학생 정보 조회 로직 구현
-    //     // 1. sDAO.selectOneStu() 호출
-    //     // 2. 암호화된 개인정보 복호화
+    // // TODO: 학생 정보 조회 로직 구현
+    // // 1. sDAO.selectOneStu() 호출
+    // // 2. 암호화된 개인정보 복호화
 
-    //     return sd;
+    // return sd;
     // }
 
     // /**
-    //  * 학생 정보 수정
-    //  * 
-    //  * @param sDTO 수정할 학생 정보가 담긴 DTO
-    //  * @return int 수정 결과 (1: 성공, 0: 실패)
-    //  */
+    // * 학생 정보 수정
+    // *
+    // * @param sDTO 수정할 학생 정보가 담긴 DTO
+    // * @return int 수정 결과 (1: 성공, 0: 실패)
+    // */
     // public int modifyUserInfo(UserDTO sDTO) {
-    //     int result = 0;
+    // int result = 0;
 
-    //     // TODO: 정보 수정 로직 구현
-    //     // 1. 수정할 정보 암호화 (필요시)
-    //     // 2. sDAO.updateStu() 호출
+    // // TODO: 정보 수정 로직 구현
+    // // 1. 수정할 정보 암호화 (필요시)
+    // // 2. sDAO.updateStu() 호출
 
-    //     return result;
+    // return result;
     // }
     // .common으로 이동시켜서 공통으로 사용할예정
     // /**
@@ -187,50 +200,20 @@ public class UserService {
     // } .common으로 이동시켜서 공통으로 사용할예정
 
     // /**
-    //  * 학생 회원 탈퇴
-    //  * 
-    //  * @param sDTO 탈퇴할 학생 정보 (아이디, 비밀번호)
-    //  * @return boolean 탈퇴 성공 여부
-    //  */
+    // * 학생 회원 탈퇴
+    // *
+    // * @param sDTO 탈퇴할 학생 정보 (아이디, 비밀번호)
+    // * @return boolean 탈퇴 성공 여부
+    // */
     // public boolean withdrawUser(UserDTO sDTO) {
-    //     boolean isWithdrawn = false;
+    // boolean isWithdrawn = false;
 
-    //     // TODO: 회원 탈퇴 로직 구현
-    //     // 1. 비밀번호 확인
-    //     // 2. sDAO.deleteStu() 호출 (실제 삭제 또는 activation 변경)
+    // // TODO: 회원 탈퇴 로직 구현
+    // // 1. 비밀번호 확인
+    // // 2. sDAO.deleteStu() 호출 (실제 삭제 또는 activation 변경)
 
-    //     return isWithdrawn;
+    // return isWithdrawn;
     // }
-
-    /**
-     * 결정적 암호화를 위한 Encryptor 생성 (검색 가능하도록 고정 IV 사용)
-     */
-    private TextEncryptor createEncryptor() {
-        return new TextEncryptor() {
-            // 고정 IV 사용 (0으로 초기화된 16바이트)
-            private final AesBytesEncryptor encryptor = new AesBytesEncryptor(key, salt, new BytesKeyGenerator() {
-                @Override
-                public int getKeyLength() {
-                    return 16;
-                }
-
-                @Override
-                public byte[] generateKey() {
-                    return new byte[16];
-                }
-            });
-
-            @Override
-            public String encrypt(String text) {
-                return new String(Hex.encode(encryptor.encrypt(text.getBytes(StandardCharsets.UTF_8))));
-            }윳
-
-            @Override
-            public String decrypt(String encryptedText) {
-                return new String(encryptor.decrypt(Hex.decode(encryptedText)), StandardCharsets.UTF_8);
-            }
-        };
-    }
 
 }
 // class

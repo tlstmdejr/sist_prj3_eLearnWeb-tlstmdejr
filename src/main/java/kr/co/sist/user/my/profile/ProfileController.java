@@ -25,19 +25,20 @@ public class ProfileController {
      * 내 프로필 페이지
      * - 프로필 사진 & 닉네임 & 아이디 조회
      * - 자기소개 조회
+     * 
      * @param session 세션에서 userId 가져옴
-     * @param model 뷰에 전달할 데이터
+     * @param model   뷰에 전달할 데이터
      * @return 프로필 조회 뷰
      */
-    @GetMapping("")
+    @GetMapping("/mypageMain")
     public String myProfile(HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
-        
-        // TODO: 프로필 정보 조회
-        // StudentDomain sd = ps.getProfile(userId);
-        // model.addAttribute("profile", sd);
-        
-        return "user/my/profile/index";
+
+        // 프로필 정보 조회
+        UserDomain ud = ps.selectOneProfile(userId);
+        model.addAttribute("profile", ud);
+
+        return "user/my/profile/mypageMain";
     }
 }
 // class

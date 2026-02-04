@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        #wrap {
+            margin: 0px auto;
+            width: 1000px;
+            min-height: 800px;
+        }
+
+        #header {
+            height: 150px;
+        }
+
+        #container {
+            display: flex;
+            margin-top: 30px;
+            min-height: 600px;
+        }
+
+        #footer {
+            height: 100px;
+        }
+
+        /* Sidebar Layout */
+        .sidebar {
+            width: 200px;
+            padding-right: 30px;
+            border-right: 1px solid #eee;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #f0fdf4;
+            color: #1dc078;
+            font-weight: bold;
+        }
+
+        /* Main Content Layout */
+        .content {
+            flex: 1;
+            padding-left: 40px;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-img-area {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #eee;
+            margin-right: 20px;
+        }
+
+        .profile-img-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-id {
+            font-size: 16px;
+            color: #888;
+        }
+
+        .btn-edit {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .btn-edit:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Stats Section */
+        .stats-box {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Intro Section */
+        .intro-section h3 {
+            font-size: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .intro-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .intro-header h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .intro-empty {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+        }
+
+        .intro-text {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: #444;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+
+        }); // ready
+    </script>
+</head>
+
+<body>
+    <div id="wrap">
+        <div id="header">
+            <th:block th:replace="~{fragments/header :: header}" />
+        </div>
+
+        <div id="container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <ul>
+                    <li><a href="#" class="active">프로필</a></li>
+                    <li><a href="#">대시보드</a></li>
+                    <li><a href="#">내 학습</a></li>
+                    <li><a href="#">구매 내역</a></li>
+                    <li><a href="#">작성한 게시글</a></li>
+                    <li><a href="#">설정</a></li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content">
+                <div class="profile-header">
+                    <div class="profile-img-area">
+                        <!-- 이미지가 없으면 기본 이미지 사용 -->
+                        <img th:src="@{/images/profile/default.png}" th:if="${profile.img == 'default.png'}"
+                            alt="Profile Image">
+                        <img th:src="@{/images/profile/} + ${profile.img}" th:unless="${profile.img == 'default.png'}"
+                            alt="Profile Image">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name" th:text="${profile.name}">사용자 이름</div>
+                        <div class="profile-id" th:text="${profile.id}">user_id</div>
+                    </div>
+                    <a href="#" class="btn-edit">프로필 수정</a>
+                </div>
+
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <span>수강평 작성수</span> <br>
+                        <strong>-</strong>
+                    </div>
+                </div>
+
+                <div class="intro-section">
+                    <div class="intro-header">
+                        <h3>소개</h3>
+                        <a href="#" class="btn-edit">작성하기</a>
+                    </div>
+
+                    <div class="intro-content">
+                        <div th:if="${profile.intro == null or profile.intro == ''}" class="intro-empty">
+                            <p>소개글이 비어있어요</p>
+                            <p style="font-size: 13px; margin-top: 5px;">나만의 스킬, 깃허브 링크 등으로 소개글을 채워보세요.</p>
+                        </div>
+                        <div th:unless="${profile.intro == null or profile.intro == ''}" class="intro-text"
+                            th:text="${profile.intro}">
+                            여기에 자기소개가 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="footer">
+            <th:block th:replace="~{fragments/footer :: footer}" />
+        </div>
+    </div>
+</body>
+
+</html>

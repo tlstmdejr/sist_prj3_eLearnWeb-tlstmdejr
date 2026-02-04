@@ -1,33 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th = "http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<th:block th:replace = "~{fragments/cdn :: cdn}"/>
-<style type = "text/css">
-#wrap{margin: 0px auto; width: 1000px; height: 1200px}
-#header{height: 150px}
-#container{height: 950px}
-#footer{height: 100px}
-</style>
-<script type="text/javascript">
-$(function() {
+<html xmlns:th="http://www.thymeleaf.org">
 
-}); // ready
-</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        #wrap {
+            margin: 0px auto;
+            width: 1000px;
+            height: 1200px
+        }
+
+        #header {
+            height: 150px
+        }
+
+        #container {
+            height: 950px
+        }
+
+        #footer {
+            height: 100px
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+
+        }); // ready
+    </script>
 </head>
+
 <body>
-<div id = "wrap">
-<div id = "header">
-<th:block th:replace = "~{fragments/header :: header}"/>
-</div>
-<div id = "container">
-    <a th:href="@{/user/member/login/loginFrm}">로그인</a>
-    <a th:href="@{/user/member/joinFrm}">회원가입</a>
-</div>
-<div id = "footer">
-<th:block th:replace = "~{fragments/footer :: footer}"/>
-</div>
-</div>
+    <div id="wrap">
+        <div id="header">
+            <th:block th:replace="~{fragments/header :: header}" />
+        </div>
+        <div id="container">
+            <a th:href="@{/user/member/joinFrm}">회원가입</a>
+            <th:block th:if="${session.userId eq null}">
+                <a th:href="@{/user/member/login/loginFrm}">로그인</a>
+            </th:block>
+            <th:block th:unless="${session.userId eq null}">
+                <a th:href="@{/user/my/profile/mypageMain}">마이페이지</a>
+                <a th:href="@{/user/member/login/logout}"> 로그아웃</a>
+                <br />
+                <hr />
+                <h3>세션 정보 확인</h3>
+                <ul>
+                    <li><strong>아이디:</strong> <span th:text="${session.userId}"></span></li>
+                    <li><strong>이름:</strong> <span th:text="${session.userName}"></span></li>
+                    <li><strong>이메일:</strong> <span th:text="${session.userEmail}"></span></li>
+                </ul>
+            </th:block>
+        </div>
+        <div id="footer">
+            <th:block th:replace="~{fragments/footer :: footer}" />
+        </div>
+    </div>
 </body>
+
 </html>
