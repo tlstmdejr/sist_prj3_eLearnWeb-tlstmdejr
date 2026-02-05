@@ -9,7 +9,4 @@ select USER_ID as id, NAME, EMAIL, PASSWORD, PHONE, INTRO, PROFILE as img, BIRTH
 from USERS
 where USER_ID=#{id}
 </select>
-
-
-
 </mapper>

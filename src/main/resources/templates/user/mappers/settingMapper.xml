@@ -55,7 +55,7 @@
          WHERE   user_id = #{userId}
     </update>
     
-    <!-- 휴대폰 번호 변경 -->
+    <!-- 휴대폰 번호 변경 인증 -->
     <update id="updatePhone">
          UPDATE  users
          SET     PHONE = #{phone}

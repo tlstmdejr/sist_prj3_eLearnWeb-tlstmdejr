@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>계정 설정</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        /* 기본 레이아웃 */
+        #wrap {
+            margin: 0px auto;
+            width: 1000px;
+            min-height: 800px;
+        }
+
+        #header {
+            height: 150px;
+        }
+
+        #container {
+            display: flex;
+            margin-top: 30px;
+            min-height: 600px;
+        }
+
+        #footer {
+            height: 100px;
+        }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            width: 200px;
+            padding-right: 30px;
+            border-right: 1px solid #eee;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #555;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #f0fdf4;
+            color: #1dc078;
+            font-weight: bold;
+        }
+
+        /* 메인 컨텐츠 영역 */
+        .content {
+            flex: 1;
+            padding-left: 40px;
+        }
+
+        /* 섹션 공통 스타일 */
+        .section {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 버튼 스타일 */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+
+        .btn-cancel {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+
+        .btn-save {
+            background-color: #1dc078;
+            color: #fff;
+        }
+
+        .btn-save:hover {
+            background-color: #18a566;
+        }
+
+        .btn-cancel:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 폼 항목 스타일 */
+        .form-row {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .form-label {
+            width: 100px;
+            font-size: 14px;
+            color: #555;
+            padding-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .form-label .info-icon {
+            cursor: help;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .form-content {
+            flex: 1;
+        }
+
+        /* 입력 필드 스타일 */
+        .form-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1dc078;
+        }
+
+        .form-input:disabled {
+            background-color: #f9f9f9;
+            color: #999;
+        }
+
+        /* 프로필 이미지 영역 */
+        .profile-img-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-img-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-upload-info {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .img-upload-info .highlight {
+            color: #1dc078;
+        }
+
+        .btn-img-change {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .btn-img-change:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 자기소개 텍스트영역 */
+        .form-textarea {
+            width: 100%;
+            max-width: 500px;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1dc078;
+        }
+
+        .textarea-placeholder {
+            color: #999;
+        }
+
+        /* 비밀번호 변경 영역 */
+        .password-section {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            max-width: 400px;
+        }
+
+        .password-row {
+            margin-bottom: 15px;
+        }
+
+        .password-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #1dc078;
+        }
+
+        .password-input.error {
+            border-color: #ff4444;
+        }
+
+        .password-input.success {
+            border-color: #1dc078;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .password-hint.error {
+            color: #ff4444;
+        }
+
+        .password-hint.success {
+            color: #1dc078;
+        }
+
+        .password-hint .icon {
+            font-weight: bold;
+        }
+
+        /* 비밀번호 요구사항 체크리스트 */
+        .password-requirements {
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 3px;
+            color: #888;
+        }
+
+        .requirement.valid {
+            color: #1dc078;
+        }
+
+        .requirement.invalid {
+            color: #ff4444;
+        }
+
+        .requirement .check-icon::before {
+            content: "✓";
+        }
+
+        .requirement .x-icon::before {
+            content: "✗";
+        }
+
+        /* 비밀번호 버튼 영역 */
+        .password-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn-find-password {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 12px;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        /* 계정 탈퇴 링크 */
+        .account-delete {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .account-delete a {
+            color: #888;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .account-delete a:hover {
+            text-decoration: underline;
+        }
+
+        /* 에디터 툴바 (자기소개용) */
+        .editor-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            background-color: #fafafa;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            border-radius: 3px;
+        }
+
+        .toolbar-btn:hover {
+            background-color: #eee;
+        }
+
+        .editor-container .form-textarea {
+            border-radius: 0 0 5px 5px;
+        }
+
+        /* 입력 필드 + 인증 버튼 컨테이너 */
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            max-width: 500px;
+        }
+
+        .input-with-btn .form-input {
+            flex: 1;
+        }
+
+        /* 인증 버튼 스타일 */
+        .btn-verify {
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            border: 1px solid #1dc078;
+            background-color: #fff;
+            color: #1dc078;
+            white-space: nowrap;
+        }
+
+        .btn-verify:hover {
+            background-color: #1dc078;
+            color: #fff;
+        }
+
+        .btn-verify:disabled {
+            border-color: #ccc;
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-verify.verified {
+            border-color: #1dc078;
+            background-color: #1dc078;
+            color: #fff;
+            cursor: default;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            // ===============================================
+            // 비밀번호 유효성 검사 함수
+            // ===============================================
+            function validatePassword(password) {
+                // 각 요구사항 체크
+                const minLength = password.length >= 6;                                  // 6자 이상
+                const maxLength = password.length <= 32;                                 // 32자 이하
+                const noSpaces = !/\s/.test(password);                                   // 공백 없음
+
+                return {
+                    length: minLength && maxLength,
+                    noSpaces: noSpaces,
+                    isValid: minLength && maxLength && noSpaces
+                };
+            }
+
+            // ===============================================
+            // 현재 비밀번호 입력 이벤트
+            // ===============================================
+            $('#currentPassword').on('input', function () {
+                const value = $(this).val();
+                const $hint = $('#currentPasswordHint');
+
+                if (value.length === 0) {
+                    $hint.hide();
+                } else {
+                    // 실제로는 서버에서 검증해야 하지만, 테스트용으로 프론트에서만 처리
+                    $hint.hide();
+                }
+            });
+
+            // ===============================================
+            // 새 비밀번호 입력 이벤트 (실시간 유효성 검사)
+            // ===============================================
+            $('#newPassword').on('input', function () {
+                const password = $(this).val();
+                const result = validatePassword(password);
+
+                // 요구사항 표시 업데이트
+                updateRequirement('#req-specialchar', result.specialChar);
+                updateRequirement('#req-length', result.length);
+                updateRequirement('#req-nospaces', result.noSpaces);
+                updateRequirement('#req-noconsecutive', result.noConsecutive);
+
+                // 비밀번호 확인 필드와 비교
+                checkPasswordMatch();
+            });
+
+            // ===============================================
+            // 비밀번호 확인 입력 이벤트
+            // ===============================================
+            $('#confirmPassword').on('input', function () {
+                checkPasswordMatch();
+            });
+
+            // ===============================================
+            // 비밀번호 일치 확인 함수
+            // ===============================================
+            function checkPasswordMatch() {
+                const newPw = $('#newPassword').val();
+                const confirmPw = $('#confirmPassword').val();
+                const $hint = $('#confirmPasswordHint');
+                const $input = $('#confirmPassword');
+
+                if (confirmPw.length === 0) {
+                    $hint.hide();
+                    $input.removeClass('error success');
+                    return;
+                }
+
+                if (newPw === confirmPw) {
+                    $hint.removeClass('error').addClass('success')
+                        .html('<span class="icon">✓</span> 새 비밀번호와 일치합니다.').show();
+                    $input.removeClass('error').addClass('success');
+                } else {
+                    $hint.removeClass('success').addClass('error')
+                        .html('<span class="icon">✗</span> 비밀번호가 일치하지 않습니다.').show();
+                    $input.removeClass('success').addClass('error');
+                }
+            }
+
+            // ===============================================
+            // 요구사항 상태 업데이트 함수
+            // ===============================================
+            function updateRequirement(selector, isValid) {
+                const $el = $(selector);
+                if (isValid) {
+                    $el.removeClass('invalid').addClass('valid');
+                    $el.find('.icon').removeClass('x-icon').addClass('check-icon');
+                } else {
+                    $el.removeClass('valid').addClass('invalid');
+                    $el.find('.icon').removeClass('check-icon').addClass('x-icon');
+                }
+            }
+
+            // ===============================================
+            // 프로필 이미지 변경 버튼 클릭
+            // ===============================================
+            $('#btnChangeImage').on('click', function () {
+                $('#profileImageInput').click();
+            });
+
+            // ===============================================
+            // 프로필 이미지 선택 시 미리보기
+            // ===============================================
+            $('#profileImageInput').on('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // 파일 확장자 검사
+                    const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    const extension = file.name.split('.').pop().toLowerCase();
+
+                    if (!validExtensions.includes(extension)) {
+                        alert('JPG, GIF, PNG 파일만 업로드 가능합니다.');
+                        return;
+                    }
+
+                    // 파일 크기 검사 (1MB 이하)
+                    if (file.size > 1024 * 1024) {
+                        alert('1MB 이하의 이미지만 업로드 가능합니다.');
+                        return;
+                    }
+
+                    // 미리보기 표시
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $('#profileImage').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // ===============================================
+            // 수정 버튼 클릭 - confirm 확인 후 저장
+            // ===============================================
+            $('#btnSave').on('click', function () {
+                // 확인창 표시
+                if (!confirm('프로필 정보를 수정하시겠습니까?')) {
+                    return;
+                }
+
+                // 폼 데이터 수집
+                const formData = new FormData();
+                formData.append('nickname', $('#nickname').val());
+                formData.append('intro', $('#intro').val());
+                formData.append('phone', $('#phone').val());
+
+                // 프로필 이미지 파일이 선택된 경우
+                const imageFile = $('#profileImageInput')[0].files[0];
+                if (imageFile) {
+                    formData.append('profileImage', imageFile);
+                }
+
+                // 비밀번호 변경 시
+                const currentPw = $('#currentPassword').val();
+                const newPw = $('#newPassword').val();
+                const confirmPw = $('#confirmPassword').val();
+
+                if (currentPw || newPw || confirmPw) {
+                    // 비밀번호 필드 중 하나라도 입력된 경우 모두 입력 필요
+                    if (!currentPw || !newPw || !confirmPw) {
+                        alert('비밀번호를 변경하려면 모든 비밀번호 필드를 입력해주세요.');
+                        return;
+                    }
+
+                    // 비밀번호 유효성 검사
+                    const pwResult = validatePassword(newPw);
+                    if (!pwResult.isValid) {
+                        alert('새 비밀번호가 요구사항을 충족하지 않습니다.');
+                        return;
+                    }
+
+                    // 비밀번호 일치 확인
+                    if (newPw !== confirmPw) {
+                        alert('새 비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+                        return;
+                    }
+
+                    formData.append('currentPassword', currentPw);
+                    formData.append('newPassword', newPw);
+                }
+
+                // AJAX 요청으로 서버에 저장
+                // 테스트용이므로 실제 서버 연동은 나중에 구현
+                $.ajax({
+                    url: '/user/my/setting/update',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        alert('프로필이 성공적으로 수정되었습니다.');
+                        // 페이지 새로고침 또는 성공 처리
+                        // location.reload();
+                    },
+                    error: function (xhr, status, error) {
+                        // 테스트용: 실제 서버가 없어도 성공 메시지 표시
+                        alert('프로필이 성공적으로 수정되었습니다. (테스트 모드)');
+                    }
+                });
+            });
+
+            // ===============================================
+            // 취소 버튼 클릭 - 페이지 새로고침
+            // ===============================================
+            $('#btnCancel').on('click', function () {
+                if (confirm('변경사항을 취소하시겠습니까?')) {
+                    location.reload();
+                }
+            });
+
+        }); // ready
+    </script>
+</head>
+
+<body>
+    <div id="wrap">
+        <div id="header">
+            <th:block th:replace="~{fragments/header :: header}" />
+        </div>
+
+        <div id="container">
+            <!-- 사이드바 -->
+            <div class="sidebar">
+                <ul>
+                    <li><a href="#">프로필</a></li>
+                    <li><a href="#">대시보드</a></li>
+                    <li><a href="#">내 학습</a></li>
+                    <li><a href="#">구매 내역</a></li>
+                    <li><a href="#">작성한 게시글</a></li>
+                    <li><a href="#" class="active">설정</a></li>
+                </ul>
+            </div>
+
+            <!-- 메인 컨텐츠 -->
+            <div class="content">
+                <!-- =============================================== -->
+                <!-- 내 프로필 섹션 -->
+                <!-- =============================================== -->
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-title">내 프로필</span>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-cancel" id="btnCancel">취소</button>
+                            <button type="button" class="btn btn-save" id="btnSave">저장</button>
+                        </div>
+                    </div>
+
+                    <!-- 프로필 이미지 -->
+                    <div class="form-row">
+                        <div class="form-label">이미지</div>
+                        <div class="form-content">
+                            <div class="profile-img-container">
+                                <div class="profile-img-box">
+                                    <img id="profileImage" th:src="@{/images/profile/default.png}" alt="프로필 이미지">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-img-change" id="btnChangeImage">변경</button>
+                                    <input type="file" id="profileImageInput" accept="image/*" style="display:none;">
+                                    <div class="img-upload-info">
+                                        <span class="highlight">✓</span> JPG, GIF, PNG 확장자<br>
+                                        <span class="highlight">✓</span> 1MB 이하의 이미지
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 닉네임 -->
+                    <div class="form-row">
+                        <div class="form-label">닉네임</div>
+                        <div class="form-content">
+                            <input type="text" class="form-input" id="nickname"
+                                th:value="${user.nickname != null ? user.nickname : 'Devil Site'}" value="Devil Site"
+                                placeholder="닉네임을 입력하세요">
+                        </div>
+                    </div>
+
+                    <!-- 아이디 (수정 불가) -->
+                    <div class="form-row">
+                        <div class="form-label">아이디</div>
+                        <div class="form-content">
+                            <input type="text" class="form-input" id="userId"
+                                th:value="${user.userId != null ? user.userId : 'ljw0232'}" value="ljw0232" disabled>
+                        </div>
+                    </div>
+
+                    <!-- 자기소개 -->
+                    <div class="form-row">
+                        <div class="form-label">자기소개</div>
+                        <div class="form-content">
+                            <div class="editor-container">
+                                <!-- 간단한 에디터 툴바 -->
+                                <div class="editor-toolbar">
+                                    <button type="button" class="toolbar-btn" title="굵게"><b>B</b></button>
+                                    <button type="button" class="toolbar-btn" title="기울임"><i>I</i></button>
+                                    <button type="button" class="toolbar-btn" title="밑줄"><u>U</u></button>
+                                    <button type="button" class="toolbar-btn" title="취소선"><s>S</s></button>
+                                    <button type="button" class="toolbar-btn" title="코드">&lt;/&gt;</button>
+                                    <button type="button" class="toolbar-btn" title="이미지">🖼</button>
+                                    <button type="button" class="toolbar-btn" title="링크">🔗</button>
+                                    <button type="button" class="toolbar-btn" title="인용">❝❞</button>
+                                    <button type="button" class="toolbar-btn" title="구분선">—</button>
+                                    <button type="button" class="toolbar-btn" title="본문">본문</button>
+                                </div>
+                                <textarea class="form-textarea" id="intro" placeholder="나만의 스킬, 깃허브 링크 등으로 소개글을 채워보세요."
+                                    th:text="${user.intro}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- =============================================== -->
+                <!-- 기본 정보 섹션 -->
+                <!-- =============================================== -->
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-title">기본 정보</span>
+                    </div>
+
+                    <!-- 이메일 -->
+                    <div class="form-row">
+                        <div class="form-label">
+                            이메일
+                            <span class="info-icon" title="이메일 인증이 필요합니다">ⓘ</span>
+                        </div>
+                        <div class="form-content">
+                            <div class="input-with-btn">
+                                <input type="email" class="form-input" id="email"
+                                    th:value="${user.email != null ? user.email : 'ljw0232@gmail.com'}"
+                                    value="ljw0232@gmail.com">
+                                <button type="button" class="btn-verify" id="btnVerifyEmail">인증</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 비밀번호 -->
+                    <div class="form-row">
+                        <div class="form-label">비밀번호</div>
+                        <div class="form-content">
+                            <div class="password-section">
+                                <!-- 현재 비밀번호 -->
+                                <div class="password-row">
+                                    <input type="password" class="password-input" id="currentPassword"
+                                        placeholder="현재 비밀번호">
+                                    <div class="password-hint error" id="currentPasswordHint" style="display:none;">
+                                        <span class="icon">✗</span> 비밀번호가 일치하지 않습니다.
+                                    </div>
+                                </div>
+
+                                <!-- 새 비밀번호 -->
+                                <div class="password-row">
+                                    <input type="password" class="password-input" id="newPassword" placeholder="새 비밀번호">
+                                    <!-- 비밀번호 요구사항 체크리스트 -->
+                                    <div class="password-requirements">
+                                        <div class="requirement" id="req-specialchar">
+                                            <span class="icon check-icon"></span>
+                                            영문/숫자/특수문자 중, 2가지 이상 포함
+                                        </div>
+                                        <div class="requirement" id="req-length">
+                                            <span class="icon check-icon"></span>
+                                            8자 이상 32자 이하 입력 (공백 제외)
+                                        </div>
+                                        <div class="requirement" id="req-noconsecutive">
+                                            <span class="icon check-icon"></span>
+                                            연속 3자 이상 동일한 문자/숫자 제외
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 비밀번호 확인 -->
+                                <div class="password-row">
+                                    <input type="password" class="password-input" id="confirmPassword"
+                                        placeholder="새 비밀번호 확인">
+                                    <div class="password-hint success" id="confirmPasswordHint" style="display:none;">
+                                        <span class="icon">✓</span> 새 비밀번호와 일치합니다.
+                                    </div>
+                                </div>
+
+                                <!-- 비밀번호 버튼 -->
+                                <div class="password-actions">
+                                    <button type="button" class="btn-find-password">비밀번호 찾기</button>
+                                    <button type="button" class="btn btn-cancel btn-small">취소</button>
+                                    <button type="button" class="btn btn-save btn-small">저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 휴대폰 번호 -->
+                    <div class="form-row">
+                        <div class="form-label">휴대폰 번호</div>
+                        <div class="form-content">
+                            <div class="input-with-btn">
+                                <input type="tel" class="form-input" id="phone"
+                                    th:value="${user.phone != null ? user.phone : '010-9457-2249'}"
+                                    value="010-9457-2249" placeholder="010-0000-0000">
+                                <button type="button" class="btn-verify" id="btnVerifyPhone">인증</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 계정 탈퇴 -->
+                    <div class="account-delete">
+                        <a href="#">계정 탈퇴</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="footer">
+            <th:block th:replace="~{fragments/footer :: footer}" />
+        </div>
+    </div>
+</body>
+
+</html>
