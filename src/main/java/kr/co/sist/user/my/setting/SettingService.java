@@ -49,6 +49,7 @@ public class SettingService {
             // 암호화된 정보 복호화
             TextEncryptor te = Encryptors.text(key, salt);
             sd.setEmail(te.decrypt(sd.getEmail()));
+            sd.setName(te.decrypt(sd.getName()));
 
         } catch (PersistenceException pe) {
             pe.printStackTrace();
@@ -91,6 +92,8 @@ public class SettingService {
         int result = 0;
 
         try {
+            TextEncryptor te = Encryptors.text(key, salt);
+            name = te.encrypt(name);
             result = sm.updateNick(userId, name);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
@@ -195,4 +198,3 @@ public class SettingService {
         return result;
     }
 }
-// class

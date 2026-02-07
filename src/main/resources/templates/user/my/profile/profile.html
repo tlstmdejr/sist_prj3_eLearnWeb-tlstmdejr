@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{user/my/profile/mypageMain :: layout(~{::content}, null, 'profile')}">
+<div th:fragment="content">
+    <div class="profile-header">
+        <div class="profile-img-area">
+            <!-- 이미지가 없으면 기본 이미지 사용 -->
+            <img th:src="@{/images/profile/default.png}" th:if="${profile.img == 'default.png'}" alt="Profile Image">
+            <img th:src="@{/images/profile/} + ${profile.img}" th:unless="${profile.img == 'default.png'}"
+                alt="Profile Image">
+        </div>
+        <div class="profile-info">
+            <div class="profile-name" th:text="${profile.name}">사용자 이름</div>
+            <div class="profile-id" th:text="${profile.id}">user_id</div>
+        </div>
+        <a href="#" class="btn-edit">프로필 수정</a>
+    </div>
+
+    <div class="stats-box">
+        <div class="stat-item">
+            <span>수강평 작성수</span> <br>
+            <strong>-</strong>
+        </div>
+    </div>
+
+    <div class="intro-section">
+        <div class="intro-header">
+            <h3>소개</h3>
+            <a href="#" class="btn-edit">작성하기</a>
+        </div>
+
+        <div class="intro-content">
+            <div th:if="${profile.intro == null or profile.intro == ''}" class="intro-empty">
+                <p>소개글이 비어있어요</p>
+                <p style="font-size: 13px; margin-top: 5px;">나만의 스킬, 깃허브 링크 등으로 소개글을 채워보세요.</p>
+            </div>
+            <div th:unless="${profile.intro == null or profile.intro == ''}" class="intro-text"
+                th:text="${profile.intro}">
+                여기에 자기소개가 표시됩니다.
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

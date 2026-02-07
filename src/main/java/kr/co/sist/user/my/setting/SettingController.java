@@ -33,19 +33,12 @@ public class SettingController {
      * 내 정보 설정 페이지 (조회)
      * - 프로필 사진 & 닉네임 & 아이디 & 자기소개 조회
      * - 이메일, 비밀번호(마스킹), 휴대폰 번호 조회
-     * 
-     * @param session 세션에서 userId 가져옴
-     * @param model   뷰에 전달할 데이터
-     * @return 설정 페이지 뷰
      */
     @GetMapping("")
     public String mySetting(HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
-
-        // 사용자 정보 조회
         SettingDomain sd = ss.getSettingInfo(userId);
         model.addAttribute("user", sd);
-
         return "user/my/setting/settingPage";
     }
 
@@ -54,25 +47,26 @@ public class SettingController {
     // ===========================
 
     /**
-     * 프로필 사진 변경 처리
-     * 
-     * @param img     업로드할 프로필 이미지
-     * @param session 세션에서 userId 가져옴
-     * @return 결과 메시지 (AJAX)
+     * 프로필 정보 통합 수정 (이미지, 닉네임, 자기소개)
      */
-    @PostMapping("/updateImg")
+    @PostMapping("/updateProfile")
     @ResponseBody
-    public String updateImg(@RequestParam("profileImage") MultipartFile profileImage, HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        String resultMsg = "fail";
+    public String updateProfile(
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "intro", required = false) String intro,
+            HttpSession session) {
 
+        String userId = (String) session.getAttribute("userId");
+        String resultMsg = "success";
+
+        // 1. 프로필 이미지 변경
         if (profileImage != null && !profileImage.isEmpty()) {
             try {
-                // 저장 경로 설정
+                // F드라이브 경로에 맞게 저장 경로 확인 필요 (상대경로 사용 시 프로젝트 루트 기준)
                 File saveDir = new File("src/main/resources/static/images/profile");
-                if (!saveDir.exists()) {
+                if (!saveDir.exists())
                     saveDir.mkdirs();
-                }
 
                 String originalFileName = profileImage.getOriginalFilename();
                 String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -81,50 +75,25 @@ public class SettingController {
                 File saveFile = new File(saveDir.getAbsolutePath(), saveFileName);
                 profileImage.transferTo(saveFile);
 
-                // DB 업데이트
                 String webPath = "/images/profile/" + saveFileName;
-                int result = ss.modifyImg(userId, webPath);
-
-                if (result == 1) {
-                    resultMsg = "success";
-                }
-
+                ss.modifyImg(userId, webPath);
             } catch (IOException e) {
                 e.printStackTrace();
+                return "fail_img";
             }
         }
 
+        // 2. 닉네임 변경
+        if (name != null) {
+            ss.modifyNick(userId, name);
+        }
+
+        // 3. 자기소개 변경
+        if (intro != null) {
+            ss.modifyIntro(userId, intro);
+        }
+
         return resultMsg;
-    }
-
-    /**
-     * 닉네임 변경 처리
-     * 
-     * @param name    새 닉네임
-     * @param session 세션에서 userId 가져옴
-     * @return 결과 메시지 (AJAX)
-     */
-    @PostMapping("/updateNick")
-    @ResponseBody
-    public String updateNick(String name, HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        int result = ss.modifyNick(userId, name);
-        return result == 1 ? "success" : "fail";
-    }
-
-    /**
-     * 자기소개 변경 처리
-     * 
-     * @param intro   새 자기소개
-     * @param session 세션에서 userId 가져옴
-     * @return 결과 메시지 (AJAX)
-     */
-    @PostMapping("/updateIntro")
-    @ResponseBody
-    public String updateIntro(String intro, HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        int result = ss.modifyIntro(userId, intro);
-        return result == 1 ? "success" : "fail";
     }
 
     // ===========================
@@ -183,4 +152,3 @@ public class SettingController {
     }
 
 }
-// class
