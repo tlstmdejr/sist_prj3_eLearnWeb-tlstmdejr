@@ -20,6 +20,10 @@ VALUES(#{id},#{password},#{name}, #{email, jdbcType=VARCHAR}, #{phone, jdbcType=
 <select id="selectName" resultType="String" parameterType="String">
     SELECT name FROM users WHERE name = #{name}
 </select>
+<!-- 전화번호 중복 확인 -->
+<select id="selectPhone" resultType="String" parameterType="String">
+    SELECT phone FROM users WHERE phone = #{phone}
+</select>
 
 
 

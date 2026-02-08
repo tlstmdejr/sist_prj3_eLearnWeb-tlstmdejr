@@ -10,32 +10,21 @@ import org.apache.ibatis.exceptions.PersistenceException;
 @Mapper
 public interface UserMapper {
 
-    /**
-     * 회원가입
-     * 
-     * @param userId 사용자 아이디
-     * @return StudentDomain 사용자 정보
-     * @throws PersistenceException DB 예외
-     */
+    // 회원가입
+    // <insert id = "insertUser" parameterType = "userDTO">
     public int insertUser(UserDTO uDTO) throws PersistenceException;
 
-    /**
-     * 아이디 중복 확인
-     * 
-     * @param id 확인할 아이디
-     * @return String 사용중인 아이디 (없으면 null)
-     * @throws PersistenceException DB 예외
-     */
+    // 아이디 중복 확인
+    // <select id = "selectId" parameterType = "String" resultType = "String">
     public String selectId(String id) throws PersistenceException;
 
-    /**
-     * 이름 중복 확인
-     * 
-     * @param name 확인할 이름
-     * @return String 사용중인 이름 (없으면 null)
-     * @throws PersistenceException DB 예외
-     */
+    // 이름 중복 확인
+    // <select id = "selectName" parameterType = "String" resultType = "String">
     public String selectName(String name) throws PersistenceException;
+
+    // 전화번호 중복 확인
+    // <select id = "selectPhone" parameterType = "String" resultType = "String">
+    public String selectPhone(String phone) throws PersistenceException;
 
 }
 // interface

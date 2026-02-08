@@ -4,8 +4,12 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.Encryptors;
+
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,6 +18,9 @@ import org.springframework.stereotype.Service;
  * - 이메일 조회 및 변경
  * - 비밀번호 조회 및 변경
  * - 휴대폰 번호 조회 및 변경
+ * 
+ * [수정사항]
+ * - UserService와 동일한 암호화 방식(Fixed IV)을 사용하여 상호 호환성 확보
  */
 @Service
 public class SettingService {
@@ -47,7 +54,7 @@ public class SettingService {
             sd = sm.selectSettingInfo(userId);
 
             // 암호화된 정보 복호화
-            TextEncryptor te = Encryptors.text(key, salt);
+            TextEncryptor te = createEncryptor();
             sd.setEmail(te.decrypt(sd.getEmail()));
             sd.setName(te.decrypt(sd.getName()));
 
@@ -92,7 +99,7 @@ public class SettingService {
         int result = 0;
 
         try {
-            TextEncryptor te = Encryptors.text(key, salt);
+            TextEncryptor te = createEncryptor();
             name = te.encrypt(name);
             result = sm.updateNick(userId, name);
         } catch (PersistenceException pe) {
@@ -137,7 +144,7 @@ public class SettingService {
 
         try {
             // 이메일 암호화
-            TextEncryptor te = Encryptors.text(key, salt);
+            TextEncryptor te = createEncryptor();
             email = te.encrypt(email);
 
             result = sm.updateEmail(userId, email);
@@ -196,5 +203,36 @@ public class SettingService {
         }
 
         return result;
+    }
+
+    /**
+     * 결정적 암호화를 위한 Encryptor 생성 (UserService와 동일 로직)
+     * - 검색 및 중복 확인을 위해 고정된 IV(Initialization Vector)를 사용
+     */
+    private TextEncryptor createEncryptor() {
+        return new TextEncryptor() {
+            // 고정 IV 사용 (0으로 초기화된 16바이트)
+            private final AesBytesEncryptor encryptor = new AesBytesEncryptor(key, salt, new BytesKeyGenerator() {
+                @Override
+                public int getKeyLength() {
+                    return 16;
+                }
+
+                @Override
+                public byte[] generateKey() {
+                    return new byte[16];
+                }
+            });
+
+            @Override
+            public String encrypt(String text) {
+                return new String(Hex.encode(encryptor.encrypt(text.getBytes(StandardCharsets.UTF_8))));
+            }
+
+            @Override
+            public String decrypt(String encryptedText) {
+                return new String(encryptor.decrypt(Hex.decode(encryptedText)), StandardCharsets.UTF_8);
+            }
+        };
     }
 }

@@ -12,13 +12,9 @@ import kr.co.sist.user.member.UserDomain;
 @Mapper
 public interface ProfileMapper {
 
-    /**
-     * 아이디로 사용자 정보 조회
-     * 
-     * @param userId 사용자 아이디
-     * @return StudentDomain 사용자 정보
-     * @throws PersistenceException DB 예외
-     */
+    // 아이디로 사용자 정보 조회
+    // <select id = "selectOneProfile" parameterType = "String" resultType =
+    // "userDomain">
     public UserDomain selectOneProfile(String userId) throws PersistenceException;
 }
 // interface

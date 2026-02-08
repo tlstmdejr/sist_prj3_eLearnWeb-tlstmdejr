@@ -42,7 +42,8 @@
                 <a th:href="@{/user/member/login/loginFrm}">로그인</a>
             </th:block>
             <th:block th:unless="${session.userId eq null}">
-                <a th:href="@{/user/my/profile/mypageMain}">마이페이지</a>
+                <a th:href="@{/user/my/profile}">마이페이지</a>
+
                 <a th:href="@{/user/member/login/logout}"> 로그아웃</a>
                 <br />
                 <hr />

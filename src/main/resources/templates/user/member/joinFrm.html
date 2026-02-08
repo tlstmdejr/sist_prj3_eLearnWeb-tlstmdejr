@@ -167,6 +167,14 @@
                     return false;
                 }
             }
+            //전화번호 공백 체크 함수
+            function checkSpacePhone(str) {
+                if (str.search(/\s/) != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
 
             // 비밀번호 일치 확인
             $('#password, #passwordChk').on('keyup', function () {
@@ -254,13 +262,79 @@
                     }
                 });
             });
+
+
+            // 전화번호 중복 확인 (AJAX)
+            $('#btnChkPhone').click(function () {
+                var phone = $('#phone').val().trim();
+
+                if (phone == '') {
+                    alert('전화번호를 입력해주세요.');
+                    return;
+                }
+                if (phone.length != 11) {
+                    alert('전화번호는 11자리여야 합니다.');
+                    return;
+                }
+                if (checkSpacePhone(phone)) {
+                    alert('전화번호에는 공백을 사용할 수 없습니다.');
+                    return;
+                }
+                // 숫자만 입력되었는지 확인
+                if (!/^\d+$/.test(phone)) {
+                    alert('전화번호는 숫자만 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/user/member/overlapPhone',
+                    type: 'GET',
+                    data: { phone: phone },
+                    success: function (result) {
+                        if (result == 'available') {
+                            $('#phoneCheckMsg').text('사용 가능한 전화번호입니다.').removeClass('error').addClass('success');
+                        } else {
+                            $('#phoneCheckMsg').text('사용불가능한 전화번호입니다.').removeClass('success').addClass('error');
+                        }
+                    }
+                });
+            });
+
             // 폼 제출 시 유효성 검사
             $('#joinForm').submit(function () {
                 var name = $('#name').val().trim();
+                var phone = $('#phone').val().trim();
+                var birth = $('#birth').val();
+
                 if (checkSpaceName(name)) {
                     alert('이름에는 공백을 사용할 수 없습니다.');
                     $('#name').focus();
                     return false;
+                }
+
+                // 전화번호 유효성 검사
+                if (phone != '') {
+                    if (phone.length != 11) {
+                        alert('전화번호는 11자리여야 합니다.');
+                        $('#phone').focus();
+                        return false;
+                    }
+                    if (!/^\d+$/.test(phone)) {
+                        alert('전화번호는 숫자만 입력해주세요.');
+                        $('#phone').focus();
+                        return false;
+                    }
+                }
+
+                // 생년월일 유효성 검사 (2019-12-31 체크)
+                if (birth != '') {
+                    var birthDate = new Date(birth);
+                    var limitDate = new Date('2019-12-31');
+                    if (birthDate > limitDate) {
+                        alert('2019년 12월 31일 이전 출생자만 가입 가능합니다.');
+                        $('#birth').focus();
+                        return false;
+                    }
                 }
             });
         }); // ready
@@ -313,12 +387,17 @@
 
                     <div class="form-group">
                         <label for="phone">전화번호</label>
-                        <input type="tel" id="phone" name="phone" placeholder="전화번호를 입력하세요 (선택)">
+                        <div class="input-group">
+                            <input type="tel" id="phone" name="phone" maxlength="11"
+                                placeholder="전화번호를 입력하세요 (- 제외 11자리)">
+                            <button type="button" id="btnChkPhone" class="btn-dup-check">중복확인</button>
+                        </div>
+                        <div id="phoneCheckMsg" class="check-msg"></div>
                     </div>
 
                     <div class="form-group">
-                        <label for="birth">생년월일</label>
-                        <input type="date" id="birth" name="birth">
+                        <label for="birth">생년월일 (2019년생까지 가입 가능)</label>
+                        <input type="date" id="birth" name="birth" max="2019-12-31">
                     </div>
 
                     <button type="submit" class="btn-join">가입하기</button>

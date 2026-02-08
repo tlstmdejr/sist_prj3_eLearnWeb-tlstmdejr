@@ -103,6 +103,25 @@ public class UserService {
     }
 
     /**
+     * 학생 전화번호 중복확인 (AJAX)
+     * 
+     * @param phone 확인할 전화번호
+     * @return boolean 중복 여부 (true: 사용가능, false: 중복)
+     */
+    public boolean chkUserPhone(String phone) {
+        boolean isAvailable = false;
+        try {
+            String result = um.selectPhone(phone);
+            if (result == null) {
+                isAvailable = true;
+            }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+        return isAvailable;
+    }
+
+    /**
      * 결정적 암호화를 위한 Encryptor 생성 (검색 가능하도록 고정 IV 사용)
      */
     private TextEncryptor createEncryptor() {
