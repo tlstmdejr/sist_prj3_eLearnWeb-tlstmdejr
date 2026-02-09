@@ -21,12 +21,30 @@ public interface AdminMemberMapper {
     public List<UserDomain> selectUserList() throws PersistenceException;
 
     /**
+     * 사용자 개별 조회
+     * 
+     * @param id 사용자 아이디
+     * @return 사용자 정보
+     * @throws PersistenceException
+     */
+    public UserDomain selectUser(String id) throws PersistenceException;
+
+    /**
      * 강사 목록 조회
      * 
      * @return 강사 리스트
      * @throws PersistenceException
      */
     public List<InstructorDomain> selectInstructorList() throws PersistenceException;
+
+    /**
+     * 강사 개별 조회
+     * 
+     * @param instId 강사 아이디
+     * @return 강사 정보
+     * @throws PersistenceException
+     */
+    public InstructorDomain selectInstructor(String instId) throws PersistenceException;
 
     /**
      * 강사 승인 상태 변경

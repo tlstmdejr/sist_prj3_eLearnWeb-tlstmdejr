@@ -5,7 +5,7 @@
 <mapper namespace="kr.co.sist.admin.member.login.AdminLoginMapper">
 
     <!-- 관리자 로그인 조회 -->
-    <select id="selectAdmin" parameterType="String" resultType="kr.co.sist.admin.member.AdminDomain">
+    <select id="selectAdmin" parameterType="String" resultType="AdminDomain">
         SELECT ADM_ID as id, PASSWORD
         FROM MANAGER
         WHERE ADM_ID = #{adminId}

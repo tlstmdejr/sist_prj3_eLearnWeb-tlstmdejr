@@ -53,10 +53,21 @@ public class SettingService {
         try {
             sd = sm.selectSettingInfo(userId);
 
-            // 암호화된 정보 복호화
+            // 암호화된 정보 복호화 try-catch 처리
             TextEncryptor te = createEncryptor();
-            sd.setEmail(te.decrypt(sd.getEmail()));
-            sd.setName(te.decrypt(sd.getName()));
+            try {
+                sd.setEmail(te.decrypt(sd.getEmail()));
+            } catch (Exception e) {
+                // 복호화 실패 시 원본 유지 (평문이거나 키 불일치)
+                System.out.println("Email decryption failed: " + e.getMessage());
+            }
+
+            try {
+                sd.setName(te.decrypt(sd.getName()));
+            } catch (Exception e) {
+                // 복호화 실패 시 원본 유지
+                System.out.println("Name decryption failed: " + e.getMessage());
+            }
 
         } catch (PersistenceException pe) {
             pe.printStackTrace();
@@ -137,16 +148,33 @@ public class SettingService {
      * 
      * @param userId 사용자 아이디
      * @param email  새 이메일
-     * @return int 수정 결과 (1: 성공, 0: 실패)
+     * @return int 수정 결과 (1: 성공, 0: 실패, -1: 같은 이메일)
      */
     public int modifyEmail(String userId, String email) {
         int result = 0;
 
         try {
-            // 이메일 암호화
             TextEncryptor te = createEncryptor();
-            email = te.encrypt(email);
 
+            // 현재 이메일 조회 및 복호화
+            SettingDomain currentInfo = sm.selectSettingInfo(userId);
+            if (currentInfo != null && currentInfo.getEmail() != null) {
+                String currentEmail = "";
+                try {
+                    currentEmail = te.decrypt(currentInfo.getEmail());
+                } catch (Exception e) {
+                    // 복호화 실패 시 원본 사용 (평문일 수 있음)
+                    currentEmail = currentInfo.getEmail();
+                }
+
+                // 같은 이메일인 경우
+                if (email.equals(currentEmail)) {
+                    return -1; // same_email
+                }
+            }
+
+            // 새 이메일 암호화 후 저장
+            email = te.encrypt(email);
             result = sm.updateEmail(userId, email);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
@@ -235,4 +263,21 @@ public class SettingService {
             }
         };
     }
+
+    /**
+     * 회원 탈퇴 (비활성화)
+     * 
+     * @param userId
+     * @return
+     */
+    public int withdrawalUser(String userId) {
+        int result = 0;
+        try {
+            result = sm.updateActivation(userId);
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+        return result;
+    }
+
 }

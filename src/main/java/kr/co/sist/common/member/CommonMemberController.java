@@ -20,7 +20,7 @@ public class CommonMemberController {
         this.commonMemberService = commonMemberService;
     }
 
-    @GetMapping("/findIdFrm")
+    @GetMapping({ "/findIdFrm", "/findId" })
     public String findIdFrm() {
         return "common/member/findIdFrm";
     }
@@ -30,35 +30,72 @@ public class CommonMemberController {
         return "common/member/findPwFrm";
     }
 
-    @PostMapping("/findIdProcess")
+    @PostMapping("/sendIdAuthCode")
     @ResponseBody
-    public String findIdProcess(String phone) {
-        return commonMemberService.findId(phone);
-    }
+    public String sendIdAuthCode(String phone, HttpSession session) {
+        String code = commonMemberService.sendIdAuthCode(phone);
 
-    @PostMapping("/sendAuthCode")
-    @ResponseBody
-    public String sendAuthCode(String phone, HttpSession session) {
-        String code = commonMemberService.sendAuthCode(phone);
+        if ("not_found".equals(code)) {
+            return "not_found";
+        }
+
         if (code != null) {
-            session.setAttribute("authCode", code);
-            // session.setMaxInactiveInterval(180); // 3분 유효시간 설정 등 고려
+            session.setAttribute("findIdCode", code);
+            session.setAttribute("findIdPhone", phone); // 인증 성공 시 아이디 조회용
+            session.setMaxInactiveInterval(300); // 5분
             return "success";
         }
         return "fail";
     }
 
-    @PostMapping("/verifyAuthCode")
+    @PostMapping("/verifyIdAuthCode")
     @ResponseBody
-    public boolean verifyAuthCode(String code, HttpSession session) {
-        String sessionCode = (String) session.getAttribute("authCode");
-        return sessionCode != null && sessionCode.equals(code);
+    public String verifyIdAuthCode(String code, HttpSession session) {
+        String sessionCode = (String) session.getAttribute("findIdCode");
+        String phone = (String) session.getAttribute("findIdPhone");
+
+        if (sessionCode != null && sessionCode.equals(code) && phone != null) {
+            session.removeAttribute("findIdCode");
+            session.removeAttribute("findIdPhone");
+            // 인증 성공 시 아이디 반환
+            return commonMemberService.findIdByPhone(phone);
+        }
+        return "fail";
+    }
+
+    @PostMapping("/sendPwAuthCode")
+    @ResponseBody
+    public String sendPwAuthCode(String type, String id, String name, String email, HttpSession session) {
+        String code = commonMemberService.sendPwAuthCode(type, id, name, email);
+
+        if ("not_found".equals(code)) {
+            return "not_found";
+        }
+
+        if (code != null) {
+            session.setAttribute("findPwCode", code);
+            session.setMaxInactiveInterval(300); // 5분
+            return "success";
+        }
+        return "fail";
+    }
+
+    @PostMapping("/verifyPwAuthCode")
+    @ResponseBody
+    public String verifyPwAuthCode(String code, HttpSession session) {
+        String sessionCode = (String) session.getAttribute("findPwCode");
+
+        if (sessionCode != null && sessionCode.equals(code)) {
+            session.removeAttribute("findPwCode");
+            return "success";
+        }
+        return "fail";
     }
 
     @PostMapping("/resetPassword")
     @ResponseBody
-    public boolean resetPassword(String id, String password) {
-        return commonMemberService.updatePassword(id, password);
+    public boolean resetPassword(String type, String id, String password) {
+        return commonMemberService.updatePassword(type, id, password);
     }
 
 }

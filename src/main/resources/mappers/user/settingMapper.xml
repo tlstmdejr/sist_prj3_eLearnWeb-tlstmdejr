@@ -5,7 +5,7 @@
 <mapper namespace="kr.co.sist.user.my.setting.SettingMapper">
     
     <!-- 설정 상세 조회 -->
-    <select id="selectSettingInfo" resultType="kr.co.sist.user.my.setting.SettingDomain">
+    <select id="selectSettingInfo" resultType="SettingDomain">
         SELECT  USER_ID as id, NAME, PROFILE as img, EMAIL, PHONE, PASSWORD, INTRO
         FROM    users
         WHERE   user_id = #{userId}
@@ -53,11 +53,18 @@
          WHERE   user_id = #{userId}
     </update>
     
-    <!-- 휴대폰 번호 변경 인증 -->
-    <update id="updatePhone">
-         UPDATE  users
-         SET     PHONE = #{phone}
-         WHERE   user_id = #{userId}
+    <!-- 휴대폰 번호 변경 -->
+    <update id="updatePhone" parameterType="String">
+        UPDATE USERS
+        SET PHONE = #{phone}
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- 회원 탈퇴 (비활성화) -->
+    <update id="updateActivation" parameterType="String">
+        UPDATE USERS
+        SET ACTIVATION = 0
+        WHERE USER_ID = #{userId}
     </update>
 
 </mapper>

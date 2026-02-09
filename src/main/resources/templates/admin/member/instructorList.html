@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 - 강사 목록</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* 선택된 행 하이라이트 */
+        tr.selected {
+            background-color: #e7f1ff !important;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav {
+            margin-bottom: 20px;
+        }
+
+        .nav a {
+            margin-right: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav a.active {
+            color: #007bff;
+        }
+
+        /* 인증 상태 배지 */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        /* ================ 모달 스타일 ================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f8f9fa;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        .form-group input:disabled,
+        .form-group textarea:disabled {
+            background-color: #eee;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid #ddd;
+            background-color: #f8f9fa;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>강사 목록</h2>
+        <a href="/admin/login/logout">로그아웃</a>
+    </div>
+
+    <div class="nav">
+        <a href="/admin/member/userList">회원 관리</a>
+        <a href="/admin/member/instructorList" class="active">강사 관리</a>
+    </div>
+
+    <!-- 강사 목록 테이블 -->
+    <table>
+        <thead>
+            <tr>
+                <th style="width:30px;"><input type="checkbox" id="checkAll"></th>
+                <th>강사 ID</th>
+                <th>강사 이름</th>
+                <th>이메일</th>
+                <th>연락처</th>
+                <th>인증 여부</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="inst : ${instructorList}" th:data-instid="${inst.instId}"
+                th:onclick="openInstructorModal(this.dataset.instid)" style="cursor: pointer;">
+                <td onclick="event.stopPropagation();">
+                    <input type="checkbox" class="inst-check" th:value="${inst.instId}">
+                </td>
+                <td th:text="${inst.instId}">inst1</td>
+                <td th:text="${inst.name}">김강사</td>
+                <td th:text="${inst.email}">kim@example.com</td>
+                <td th:text="${inst.phone}">010-9876-5432</td>
+                <td>
+                    <span th:if="${inst.approval == 1}" class="badge badge-success">인증 완료</span>
+                    <span th:if="${inst.approval == 0}" class="badge badge-warning">미인증</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(instructorList)}">
+                <td colspan="6" style="text-align: center;">등록된 강사가 없습니다.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ================ 강사 상세 모달 ================ -->
+    <div class="modal-overlay" id="instructorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>기본 정보</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>강사 ID</label>
+                    <input type="text" id="modal-instId" disabled>
+                </div>
+                <div class="form-group">
+                    <label>이메일</label>
+                    <input type="text" id="modal-email" disabled>
+                </div>
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="text" id="modal-phone" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>인증 여부</label>
+                    <input type="text" id="modal-approval" disabled>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="btn-approve" onclick="approveInstructor()">인증</button>
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 현재 선택된 강사 ID 저장
+        let currentInstId = null;
+
+        // 전체 선택 체크박스
+        document.getElementById('checkAll').addEventListener('change', function () {
+            const checkboxes = document.querySelectorAll('.inst-check');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+
+        /**
+         * 강사 상세 모달 열기
+         */
+        function openInstructorModal(instId) {
+            currentInstId = instId;
+
+            // AJAX로 강사 정보 조회
+            fetch('/admin/member/instructorDetail?instId=' + instId)
+                .then(response => response.json())
+                .then(data => {
+                    // 모달에 데이터 채우기
+                    document.getElementById('modal-instId').value = data.instId || '';
+                    document.getElementById('modal-email').value = data.email || '';
+                    document.getElementById('modal-phone').value = data.phone || '';
+
+
+                    // 인증 상태 표시
+                    const approvalText = data.approval === 1 ? '인증 완료' : '미인증';
+                    document.getElementById('modal-approval').value = approvalText;
+
+                    // 이미 인증 완료된 경우 버튼 비활성화
+                    const btnApprove = document.getElementById('btn-approve');
+                    if (data.approval === 1) {
+                        btnApprove.disabled = true;
+                        btnApprove.textContent = '인증됨';
+                    } else {
+                        btnApprove.disabled = false;
+                        btnApprove.textContent = '인증';
+                    }
+
+                    // 모달 표시
+                    document.getElementById('instructorModal').classList.add('active');
+                })
+                .catch(error => {
+                    console.error('강사 정보 조회 실패:', error);
+                    alert('강사 정보를 불러오는데 실패했습니다.');
+                });
+        }
+
+        /**
+         * 모달 닫기
+         */
+        function closeModal() {
+            document.getElementById('instructorModal').classList.remove('active');
+            currentInstId = null;
+        }
+
+        /**
+         * 강사 승인 처리
+         */
+        function approveInstructor() {
+            if (!currentInstId) return;
+
+            if (!confirm('해당 강사를 인증 처리하시겠습니까?')) return;
+
+            // AJAX로 승인 처리
+            fetch('/admin/member/approveInstructorAjax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'instId=' + encodeURIComponent(currentInstId)
+            })
+                .then(response => response.text())
+                .then(result => {
+                    if (result === 'success') {
+                        alert('강사 인증이 완료되었습니다.');
+                        closeModal();
+                        // 페이지 새로고침하여 목록 갱신
+                        location.reload();
+                    } else {
+                        alert('인증 처리에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('승인 처리 실패:', error);
+                    alert('네트워크 오류가 발생했습니다.');
+                });
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('instructorModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

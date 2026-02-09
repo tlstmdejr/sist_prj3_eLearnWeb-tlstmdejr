@@ -5,7 +5,7 @@
 <mapper namespace="kr.co.sist.instructor.member.login.InstructorLoginMapper">
 
     <!-- 강사 로그인 조회 -->
-    <select id="selectInstructor" parameterType="String" resultType="kr.co.sist.instructor.member.InstructorDomain">
+    <select id="selectInstructor" parameterType="String" resultType="InstructorDomain">
         SELECT INST_ID as instId, PASSWORD, NAME, APPROVAL, ACTIVATION
         FROM INSTRUCTOR
         WHERE INST_ID = #{instId}

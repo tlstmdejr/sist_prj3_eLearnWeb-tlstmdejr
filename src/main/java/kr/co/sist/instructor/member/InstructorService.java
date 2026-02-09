@@ -4,7 +4,7 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.stereotype.Service;
 import kr.co.sist.instructor.member.InstructorDTO;
 import kr.co.sist.instructor.member.InstructorDomain;
-import kr.co.sist.instructor.member.InstructorMapper;
+import kr.co.sist.instructor.member.InstructorMemberMapper;
 
 /**
  * 강사 - 회원가입(Member) 서비스
@@ -12,10 +12,10 @@ import kr.co.sist.instructor.member.InstructorMapper;
 @Service
 public class InstructorService {
 
-    private final InstructorMapper instructorMapper;
+    private final InstructorMemberMapper instructorMemberMapper;
 
-    public InstructorService(InstructorMapper instructorMapper) {
-        this.instructorMapper = instructorMapper;
+    public InstructorService(InstructorMemberMapper instructorMemberMapper) {
+        this.instructorMemberMapper = instructorMemberMapper;
     }
 
     public boolean addInstructor(InstructorDTO iDTO) {
@@ -38,7 +38,7 @@ public class InstructorService {
 
         int cnt = 0;
         try {
-            cnt = instructorMapper.insertInstructor(iDomain);
+            cnt = instructorMemberMapper.insertInstructor(iDomain);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
@@ -48,7 +48,7 @@ public class InstructorService {
     public String chkId(String id) {
         String data = null;
         try {
-            data = instructorMapper.selectId(id);
+            data = instructorMemberMapper.selectId(id);
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }

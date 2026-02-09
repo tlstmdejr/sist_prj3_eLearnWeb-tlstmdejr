@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>비밀번호 찾기</title>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #7A5DE8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #6347c7;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .links {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: #7A5DE8;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        #step2,
+        #step3 {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .success {
+            color: #28a745;
+            font-size: 13px;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+        }
+
+        .type-selector label input[type="radio"] {
+            display: none;
+        }
+
+        .type-selector label {
+            transition: background-color 0.2s, color 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>비밀번호 찾기</h2>
+
+        <!-- 회원 유형 선택 -->
+        <div class="type-selector" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <label
+                style="flex: 1; text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 6px; cursor: pointer;">
+                <input type="radio" name="memberType" value="user" checked> 일반 회원
+            </label>
+            <label
+                style="flex: 1; text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 6px; cursor: pointer;">
+                <input type="radio" name="memberType" value="instructor"> 강사
+            </label>
+        </div>
+
+        <!-- Step 1: 정보 입력 및 이메일 인증 -->
+        <div id="step1">
+            <div class="form-group">
+                <label for="id">아이디</label>
+                <input type="text" id="id" placeholder="아이디 입력">
+            </div>
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" placeholder="이름 입력">
+            </div>
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="email" id="email" placeholder="example@email.com" style="flex: 1;">
+                    <button type="button" class="btn" id="btnSendCode"
+                        style="width: auto; margin-top: 0; padding: 0 15px; font-size: 14px;">인증요청</button>
+                </div>
+            </div>
+
+            <!-- 인증번호 입력 (숨김) -->
+            <div id="authArea" style="display: none; margin-top: 15px;">
+                <label for="authCode">인증번호</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="authCode" placeholder="인증번호 6자리" style="flex: 1;">
+                    <button type="button" class="btn" id="btnVerifyCode"
+                        style="width: auto; margin-top: 0; padding: 0 15px; font-size: 14px; background-color: #555;">확인</button>
+                </div>
+                <div id="authMsg" style="font-size: 12px; margin-top: 5px;"></div>
+            </div>
+        </div>
+
+        <!-- Step 2: 비밀번호 재설정 -->
+        <div id="step2" style="display: none; border-top: 1px solid #eee; margin-top: 20px; padding-top: 20px;">
+            <div class="form-group">
+                <label for="newPw">새 비밀번호</label>
+                <input type="password" id="newPw" placeholder="새 비밀번호 입력">
+            </div>
+            <div class="form-group">
+                <label for="confirmPw">새 비밀번호 확인</label>
+                <input type="password" id="confirmPw" placeholder="비밀번호 재입력">
+            </div>
+            <button type="button" class="btn" id="btnResetPw" style="background-color: #28a745;">비밀번호 변경</button>
+        </div>
+
+        <div class="links">
+            <a href="/common/member/findIdFrm">아이디 찾기</a> |
+            <a href="/user/login/loginFrm">로그인</a>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let verifiedId = '';
+            let verifiedType = '';
+
+            // 유형 선택 스타일 변경
+            $('input[name="memberType"]').change(function () {
+                $('input[name="memberType"]').parent().css('background-color', 'transparent').css('color', '#555').css('font-weight', 'normal');
+                $(this).parent().css('background-color', '#7A5DE8').css('color', 'white').css('font-weight', 'bold');
+            });
+            $('input[name="memberType"]:checked').change(); // 초기 상태 적용
+
+            // 1. 인증번호 발송
+            $('#btnSendCode').click(function () {
+                const type = $('input[name="memberType"]:checked').val();
+                const id = $('#id').val().trim();
+                const name = $('#name').val().trim();
+                const email = $('#email').val().trim();
+
+                if (!id || !name || !email) {
+                    alert('모든 정보를 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/common/member/sendPwAuthCode',
+                    type: 'POST',
+                    data: { type: type, id: id, name: name, email: email },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('이메일로 인증번호가 발송되었습니다.');
+                            $('#authArea').slideDown();
+                            $('#btnSendCode').text('재발송');
+                        } else if (response === 'not_found') {
+                            alert('일치하는 회원 정보를 찾을 수 없습니다.');
+                        } else {
+                            alert('발송 실패. 잠시 후 다시 시도해주세요.');
+                        }
+                    },
+                    error: function () { alert('서버 오류'); }
+                });
+            });
+
+            // 2. 인증번호 확인
+            $('#btnVerifyCode').click(function () {
+                const code = $('#authCode').val().trim();
+                if (!code) { alert('인증번호를 입력하세요.'); return; }
+
+                $.ajax({
+                    url: '/common/member/verifyPwAuthCode',
+                    type: 'POST',
+                    data: { code: code },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('인증되었습니다. 새 비밀번호를 설정해주세요.');
+                            $('#step1 input').prop('disabled', true); // Disable all inputs in step1
+                            $('#btnSendCode').prop('disabled', true); // Disable send code button
+                            $('#authArea').hide(); // Hide auth code input area
+                            $('#step2').slideDown();
+
+                            verifiedId = $('#id').val().trim();
+                            verifiedType = $('input[name="memberType"]:checked').val();
+                        } else {
+                            alert('인증번호가 일치하지 않습니다.');
+                        }
+                    }
+                });
+            });
+
+            // 3. 비밀번호 변경
+            $('#btnResetPw').click(function () {
+                const newPw = $('#newPw').val();
+                const confirmPw = $('#confirmPw').val();
+
+                if (!newPw || !confirmPw) { alert('비밀번호를 입력해주세요.'); return; }
+                if (newPw !== confirmPw) { alert('비밀번호가 일치하지 않습니다.'); return; }
+
+                $.ajax({
+                    url: '/common/member/resetPassword',
+                    type: 'POST',
+                    data: { type: verifiedType, id: verifiedId, password: newPw }, // type 추가
+                    success: function (response) {
+                        if (response) {
+                            alert('비밀번호가 변경되었습니다. 로그인해주세요.');
+                            location.href = '/user/login/loginFrm';
+                        } else {
+                            alert('변경 실패.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

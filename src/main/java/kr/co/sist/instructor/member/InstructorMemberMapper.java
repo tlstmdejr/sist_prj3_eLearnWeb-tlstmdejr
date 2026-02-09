@@ -8,7 +8,7 @@ import kr.co.sist.instructor.member.InstructorDomain;
  * 강사 - 회원가입(Member) Mapper Interface
  */
 @Mapper
-public interface InstructorMapper {
+public interface InstructorMemberMapper {
 
     /**
      * 강사 등록

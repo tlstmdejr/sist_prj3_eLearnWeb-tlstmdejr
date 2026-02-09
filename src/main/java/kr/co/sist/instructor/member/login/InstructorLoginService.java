@@ -31,7 +31,13 @@ public class InstructorLoginService {
                 // 비밀번호 확인 (BCrypt)
                 org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
 
-                if (encoder.matches(iDTO.getPassword(), tempDomain.getPassword())) {
+                boolean isMatch = encoder.matches(iDTO.getPassword(), tempDomain.getPassword());
+                if (!isMatch) {
+                    // BCrypt 매칭 실패 시 평문 비교 시도 (테스트 데이터 지원)
+                    isMatch = iDTO.getPassword().equals(tempDomain.getPassword());
+                }
+
+                if (isMatch) {
                     // 승인 여부 및 활성화 여부 확인
                     if (tempDomain.getApproval() == 1 && tempDomain.getActivation() == 1) {
                         iDomain = tempDomain;

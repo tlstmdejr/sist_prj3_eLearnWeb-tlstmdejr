@@ -4,9 +4,12 @@
 <div th:fragment="content">
     <div class="profile-header">
         <div class="profile-img-area">
-            <!-- 이미지가 없으면 기본 이미지 사용 -->
-            <img th:src="@{/images/profile/default.png}" th:if="${profile.img == 'default.png'}" alt="Profile Image">
-            <img th:src="@{/images/profile/} + ${profile.img}" th:unless="${profile.img == 'default.png'}"
+            <!-- 이미지가 없거나 기본 이미지인 경우 -->
+            <img th:src="@{/images/profile/default.png}"
+                th:if="${profile.img == null or profile.img == '' or profile.img == 'default.png'}" alt="Profile Image">
+            <!-- 사용자 지정 이미지인 경우: DB에 전체 경로 저장됨 (/images/profile/userId/파일명) -->
+            <img th:src="@{${profile.img}}"
+                th:unless="${profile.img == null or profile.img == '' or profile.img == 'default.png'}"
                 alt="Profile Image">
         </div>
         <div class="profile-info">
@@ -35,7 +38,7 @@
                 <p style="font-size: 13px; margin-top: 5px;">나만의 스킬, 깃허브 링크 등으로 소개글을 채워보세요.</p>
             </div>
             <div th:unless="${profile.intro == null or profile.intro == ''}" class="intro-text"
-                th:text="${profile.intro}">
+                th:utext="${profile.intro}">
                 여기에 자기소개가 표시됩니다.
             </div>
         </div>

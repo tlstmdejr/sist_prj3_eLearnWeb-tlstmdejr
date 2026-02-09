@@ -28,6 +28,22 @@ public interface CommonMemberMapper {
     public String selectInstructorByPhone(String phone) throws PersistenceException;
 
     /**
+     * 정보로 사용자 이메일 조회 (비밀번호 찾기용)
+     * 
+     * @param params (id, name, email)
+     * @return 이메일 (존재 여부 확인)
+     */
+    public String selectUserEmailByInfo(java.util.Map<String, String> params) throws PersistenceException;
+
+    /**
+     * 정보로 강사 이메일 조회 (비밀번호 찾기용)
+     * 
+     * @param params (id, name, email)
+     * @return 이메일 (존재 여부 확인)
+     */
+    public String selectInstructorEmailByInfo(java.util.Map<String, String> params) throws PersistenceException;
+
+    /**
      * 문자 발송 이력 저장
      * 
      * @param params (phone, email)

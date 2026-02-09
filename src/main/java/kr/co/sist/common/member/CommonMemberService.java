@@ -11,14 +11,17 @@ public class CommonMemberService {
 
     private final CommonMemberMapper commonMemberMapper;
     private final net.nurigo.sdk.message.service.DefaultMessageService messageService;
+    private final kr.co.sist.common.email.EmailService emailService;
 
     @org.springframework.beans.factory.annotation.Value("${solapi.sender.number}")
     private String senderNumber;
 
     public CommonMemberService(CommonMemberMapper commonMemberMapper,
+            kr.co.sist.common.email.EmailService emailService,
             @org.springframework.beans.factory.annotation.Value("${solapi.api.key}") String apiKey,
             @org.springframework.beans.factory.annotation.Value("${solapi.api.secret}") String apiSecret) {
         this.commonMemberMapper = commonMemberMapper;
+        this.emailService = emailService;
         this.messageService = net.nurigo.sdk.NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.solapi.com");
     }
 
@@ -28,7 +31,45 @@ public class CommonMemberService {
      * @param phone 수신 번호
      * @return 발송된 인증번호 (실패 시 null)
      */
-    public String sendAuthCode(String phone) {
+    /**
+     * 아이디 찾기용 인증번호 발송
+     * 
+     * @param phone 수신 번호
+     * @return 발송된 인증번호 (회원 없으면 "not_found", 실패 시 null)
+     */
+    public String sendIdAuthCode(String phone) {
+        // 1. 회원 존재 여부 확인
+        String userId = null;
+        try {
+            userId = commonMemberMapper.selectUserByPhone(phone);
+            if (userId == null) {
+                userId = commonMemberMapper.selectInstructorByPhone(phone);
+            }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+
+        if (userId == null) {
+            return "not_found";
+        }
+
+        // 2. 인증번호 생성 및 발송
+        String authCode = String.valueOf((int) (Math.random() * 900000) + 100000);
+        String text = "[IntLearn] 아이디 찾기 인증번호는 [" + authCode + "] 입니다.";
+
+        if (sendSms(phone, text)) {
+            return authCode;
+        }
+        return null;
+    }
+
+    /**
+     * 휴대폰 번호 인증 (단순 발송 - 정보수정 등)
+     * 
+     * @param phone 수신 번호
+     * @return 발송된 인증번호
+     */
+    public String sendPhoneVerificationCode(String phone) {
         // 6자리 랜덤 인증번호 생성
         String authCode = String.valueOf((int) (Math.random() * 900000) + 100000);
         String text = "[IntLearn] 인증번호는 [" + authCode + "] 입니다.";
@@ -40,12 +81,12 @@ public class CommonMemberService {
     }
 
     /**
-     * 아이디 찾기 (SMS 전송)
+     * 아이디 찾기 (인증 후 ID 반환)
      * 
      * @param phone 수신 번호
-     * @return 처리 결과 메시지
+     * @return 회원 아이디
      */
-    public String findId(String phone) {
+    public String findIdByPhone(String phone) {
         String userId = null;
         try {
             userId = commonMemberMapper.selectUserByPhone(phone);
@@ -55,26 +96,56 @@ public class CommonMemberService {
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
+        return userId;
+    }
 
-        if (userId != null) {
-            String text = "[IntLearn] 회원님의 아이디는 [" + userId + "] 입니다.";
-            if (sendSms(phone, text)) {
-                return "SMS로 아이디가 발송되었습니다.";
-            } else {
-                return "SMS 발송에 실패했습니다.";
+    /**
+     * 비밀번호 찾기 (정보 확인 및 이메일 전송)
+     * 
+     * @param type  회원 유형 (user/instructor)
+     * @param id    아이디
+     * @param name  이름
+     * @param email 이메일
+     * @return 성공 여부 (success/not_found)
+     */
+    public String sendPwAuthCode(String type, String id, String name, String email) {
+        String foundEmail = null;
+
+        try {
+            if ("user".equals(type)) {
+                java.util.Map<String, String> params = new java.util.HashMap<>();
+                params.put("id", id);
+                params.put("name", name);
+                params.put("email", email);
+                foundEmail = commonMemberMapper.selectUserEmailByInfo(params);
+            } else if ("instructor".equals(type)) {
+                java.util.Map<String, String> params = new java.util.HashMap<>();
+                params.put("id", id);
+                params.put("name", name);
+                params.put("email", email);
+                foundEmail = commonMemberMapper.selectInstructorEmailByInfo(params);
             }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
         }
-        return "일치하는 회원 정보가 없습니다.";
+
+        if (foundEmail == null) {
+            return "not_found";
+        }
+
+        // 이메일로 인증번호 발송
+        return emailService.sendAuthCode(email);
     }
 
     /**
      * 비밀번호 재설정
      * 
+     * @param type  회원 유형
      * @param id    아이디
      * @param newPw 새 비밀번호
      * @return 성공 여부
      */
-    public boolean updatePassword(String id, String newPw) {
+    public boolean updatePassword(String type, String id, String newPw) {
         // 비밀번호 암호화
         org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
         String encodedPw = encoder.encode(newPw);
@@ -85,11 +156,9 @@ public class CommonMemberService {
 
         int cnt = 0;
         try {
-            // 사용자/강사 모두 시도 (아이디가 PK이므로 겹치지 않는다고 가정하거나, 구분 필요)
-            // 여기서는 둘 다 시도 updateUserPassword, updateInstructorPassword
-            // 보통 아이디 중복이 안되므로.
-            cnt = commonMemberMapper.updateUserPassword(params);
-            if (cnt == 0) {
+            if ("user".equals(type)) {
+                cnt = commonMemberMapper.updateUserPassword(params);
+            } else if ("instructor".equals(type)) {
                 cnt = commonMemberMapper.updateInstructorPassword(params);
             }
         } catch (PersistenceException pe) {

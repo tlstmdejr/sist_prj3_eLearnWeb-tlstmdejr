@@ -40,4 +40,8 @@ public interface SettingMapper {
     // 휴대폰 번호 변경
     // <update id = "updatePhone" parameterType = "String, String">
     public int updatePhone(@Param("userId") String userId, @Param("phone") String phone) throws PersistenceException;
+
+    // 회원 탈퇴 (비활성화)
+    // <update id = "updateActivation" parameterType = "String">
+    public int updateActivation(String userId) throws PersistenceException;
 }
