@@ -86,9 +86,9 @@
 		</dependency>
 		<!-- solapi sdk -->
 		<dependency>
-			<groupId>com.solapi</groupId>
+			<groupId>net.nurigo</groupId>
 			<artifactId>sdk</artifactId>
-			<version>1.0.3</version>
+			<version>4.3.2</version>
 		</dependency>
 	</dependencies>
 

@@ -2,11 +2,6 @@ package kr.co.sist.common.member;
 
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.stereotype.Service;
-import kr.co.sist.common.member.CommonMemberMapper;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 
 /**
  * 공통 - 회원 멤버 서비스 (아이디/비번 찾기)
@@ -24,7 +19,7 @@ public class CommonMemberService {
             @org.springframework.beans.factory.annotation.Value("${solapi.api.key}") String apiKey,
             @org.springframework.beans.factory.annotation.Value("${solapi.api.secret}") String apiSecret) {
         this.commonMemberMapper = commonMemberMapper;
-        this.messageService = net.nurigo.sdk.NurigoApp.initialize(apiKey, apiSecret, "https://api.solapi.com");
+        this.messageService = net.nurigo.sdk.NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.solapi.com");
     }
 
     /**

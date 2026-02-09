@@ -26,6 +26,9 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/user/my/setting")
 public class SettingController {
 
+    @org.springframework.beans.factory.annotation.Value("${user.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     private SettingService ss;
 
@@ -60,11 +63,13 @@ public class SettingController {
         String userId = (String) session.getAttribute("userId");
         String resultMsg = "success";
 
+        // ... (updateProfile method)
+
         // 1. 프로필 이미지 변경
         if (profileImage != null && !profileImage.isEmpty()) {
             try {
-                // F드라이브 경로에 맞게 저장 경로 확인 필요 (상대경로 사용 시 프로젝트 루트 기준)
-                File saveDir = new File("src/main/resources/static/images/profile");
+                // 외부 경로 저장 (C:/upload/profile/)
+                File saveDir = new File(uploadDir + "profile");
                 if (!saveDir.exists())
                     saveDir.mkdirs();
 
@@ -75,6 +80,9 @@ public class SettingController {
                 File saveFile = new File(saveDir.getAbsolutePath(), saveFileName);
                 profileImage.transferTo(saveFile);
 
+                // DB에는 웹 접근 경로 저장 (/images/profile/파일명)
+                // 주의: DB 컬럼이 30자 제한이라면, 여전히 30자를 넘을 수 있음.
+                // 하지만 외부 경로 매핑을 통해 /images/profile/로 접근 가능.
                 String webPath = "/images/profile/" + saveFileName;
                 ss.modifyImg(userId, webPath);
             } catch (IOException e) {
@@ -149,6 +157,41 @@ public class SettingController {
         String userId = (String) session.getAttribute("userId");
         int result = ss.modifyPhone(userId, phone);
         return result == 1 ? "success" : "fail";
+    }
+
+    // ===========================
+    // SMS 인증 관련
+    // ===========================
+
+    @Autowired
+    private kr.co.sist.common.member.CommonMemberService cms;
+
+    /**
+     * 인증번호 발송
+     */
+    @GetMapping("/sendSms")
+    @ResponseBody
+    public String sendSms(String phone, HttpSession session) {
+        String code = cms.sendAuthCode(phone);
+        if (code != null) {
+            session.setAttribute("smsCode", code);
+            return "success";
+        }
+        return "fail";
+    }
+
+    /**
+     * 인증번호 확인
+     */
+    @PostMapping("/verifySms")
+    @ResponseBody
+    public String verifySms(String code, HttpSession session) {
+        String key = (String) session.getAttribute("smsCode");
+        if (key != null && key.equals(code)) {
+            session.removeAttribute("smsCode"); // 인증 성공 시 세션에서 제거
+            return "success";
+        }
+        return "fail";
     }
 
 }

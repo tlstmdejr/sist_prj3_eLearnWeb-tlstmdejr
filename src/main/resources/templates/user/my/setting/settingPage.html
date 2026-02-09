@@ -628,6 +628,11 @@
             // ===============================================
             // 휴대폰 인증(변경) 버튼
             // ===============================================
+            // ===============================================
+            // 휴대폰 인증(변경) 버튼
+            // ===============================================
+            let isPhoneVerified = false; // 인증 완료 여부
+
             $('#btnVerifyPhone').on('click', function () {
                 const phone = $('#phone').val();
                 if (!phone) {
@@ -635,8 +640,62 @@
                     return;
                 }
 
-                if (!confirm('휴대폰 번호를 변경하시겠습니까? (테스트: 즉시 변경됨)')) return;
+                // SMS 발송 요청
+                $.ajax({
+                    url: '/user/my/setting/sendSms',
+                    type: 'GET',
+                    data: { phone: phone },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('인증번호가 발송되었습니다.');
+                            $('#smsCodeInputArea').show(); // 인증번호 입력창 표시
+                            $('#btnVerifyPhone').text('재발송');
+                        } else {
+                            alert('인증번호 발송 실패');
+                        }
+                    },
+                    error: function () {
+                        alert('오류 발생');
+                    }
+                });
+            });
 
+            // 인증번호 확인 버튼 클릭
+            $('#btnConfirmCode').on('click', function () {
+                const code = $('#smsCode').val();
+                if (!code) {
+                    alert('인증번호를 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/user/my/setting/verifySms',
+                    type: 'POST',
+                    data: { code: code },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('인증되었습니다.');
+                            isPhoneVerified = true;
+                            $('#smsCodeInputArea').hide();
+                            $('#btnVerifyPhone').prop('disabled', true).text('인증완료').addClass('verified');
+                            $('#phone').prop('readonly', true);
+
+                            // 바로 저장 요청 (선택사항, 기획에 따라 다름. 여기서는 저장 버튼 눌러야 최종 저장되게 할지, 바로 저장할지 결정 필요)
+                            // 여기서는 "저장" 버튼을 눌렀을 때만 최종 DB 업데이트가 되도록 플래그만 설정하거나
+                            // 혹은 원래 로직대로 바로 업데이트하려면 아래 ajax 호출
+                            updatePhoneNumber();
+                        } else {
+                            alert('인증번호가 일치하지 않습니다.');
+                        }
+                    },
+                    error: function () {
+                        alert('오류 발생');
+                    }
+                });
+            });
+
+            function updatePhoneNumber() {
+                const phone = $('#phone').val();
                 $.ajax({
                     url: '/user/my/setting/updatePhone',
                     type: 'POST',
@@ -652,7 +711,7 @@
                         alert('오류 발생');
                     }
                 });
-            });
+            }
 
             // ===============================================
             // 취소 버튼 클릭 - 페이지 새로고침
@@ -687,7 +746,7 @@
                 <div class="form-content">
                     <div class="profile-img-container">
                         <div class="profile-img-box">
-                            <img id="profileImage" th:src="@{/images/profile/default.png}" alt="프로필 이미지">
+                            <img id="profileImage" th:src="@{/upload/profile/${user.profileImg}}" alt="프로필 이미지">
                         </div>
                         <div>
                             <button type="button" class="btn-img-change" id="btnChangeImage">변경</button>
@@ -769,6 +828,7 @@
                 </div>
             </div>
 
+
             <!-- 비밀번호 -->
             <div class="form-row">
                 <div class="form-label">비밀번호</div>
@@ -819,18 +879,23 @@
                 </div>
             </div>
 
-            <!-- 휴대폰 번호 -->
+            <!-- 휴대폰 -->
             <div class="form-row">
-                <div class="form-label">휴대폰 번호</div>
+                <div class="form-label">휴대폰</div>
                 <div class="form-content">
                     <div class="input-with-btn">
-                        <input type="tel" class="form-input" id="phone"
-                            th:value="${user.phone != null ? user.phone : '010-9457-2249'}" value="010-9457-2249"
-                            placeholder="010-0000-0000">
-                        <button type="button" class="btn-verify" id="btnVerifyPhone">인증</button>
+                        <input type="text" class="form-input" id="phone"
+                            th:value="${user.phone != null ? user.phone : '010-1234-5678'}" placeholder="휴대폰 번호 입력">
+                        <button type="button" class="btn-verify" id="btnVerifyPhone">인증번호</button>
+                    </div>
+                    <!-- 인증번호 입력 영역 (초기에는 숨김) -->
+                    <div class="input-with-btn" id="smsCodeInputArea" style="display:none; margin-top: 10px;">
+                        <input type="text" class="form-input" id="smsCode" placeholder="인증번호 6자리">
+                        <button type="button" class="btn-verify" id="btnConfirmCode">확인</button>
                     </div>
                 </div>
             </div>
+
 
             <!-- 계정 탈퇴 -->
             <div class="account-delete">
