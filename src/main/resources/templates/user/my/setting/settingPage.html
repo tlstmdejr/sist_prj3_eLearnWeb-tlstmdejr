@@ -472,6 +472,10 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.js"></script>
     <script type="text/javascript">
         $(function () {
+            // 초기 이메일 값 저장 (변경 여부 확인용)
+            // 요소가 존재하지 않을 경우를 대비해 optional chaining 또는 null check
+            const originalEmail = $('#email').val();
+
             // Summernote 초기화
             $('#intro').summernote({
                 height: 200,
@@ -710,7 +714,7 @@
             // ===============================================
 
 
-            // 인증 버튼 클릭 (팝업창 열기)
+            // 인증 버튼 클릭 (인라인 인증 시작)
             $('#btnVerifyEmail').on('click', function () {
                 const email = $('#email').val();
 
@@ -724,32 +728,68 @@
                     return;
                 }
 
-                if (!confirm('새 창에서 이메일 인증을 진행합니다. 계속하시겠습니까?')) return;
+                if (!confirm('인증번호를 발송하시겠습니까?')) return;
 
-                // 팝업창 열기
-                const width = 400;
-                const height = 450;
-                const left = (window.screen.width - width) / 2;
-                const top = (window.screen.height - height) / 2;
-
-                window.open('/user/my/setting/emailAuth', 'emailAuthPopup',
-                    'width=' + width + ', height=' + height + ', left=' + left + ', top=' + top);
+                // 이메일 인증번호 발송 요청
+                $.ajax({
+                    url: '/user/my/setting/sendEmailAuth',
+                    type: 'POST',
+                    data: { email: email },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('인증번호가 발송되었습니다.');
+                            $('#emailCodeInputArea').show(); // 인증번호 입력창 표시
+                            $('#btnVerifyEmail').text('재발송');
+                        } else if (response === 'duplicated') {
+                            alert('이미 사용 중인 이메일입니다.');
+                        } else {
+                            alert('인증번호 발송 실패. 다시 시도해주세요.');
+                        }
+                    },
+                    error: function () {
+                        alert('서버 오류 발생');
+                    }
+                });
             });
 
-            // 팝업창에서 호출할 콜백 함수 (전역 스코프에 등록)
-            window.onEmailAuthSuccess = function (verifiedEmail) {
-                // 1. 이메일 값 업데이트 및 입력창 비활성화
-                $('#email').val(verifiedEmail).prop('readonly', true).css('background-color', '#f0f0f0');
+            // 인증확인 버튼 클릭 (인증번호 검증)
+            $('#btnConfirmEmail').on('click', function () {
+                const code = $('#emailAuthCode').val();
+                const email = $('#email').val();
 
-                // 2. 버튼 상태 변경
-                $('#btnVerifyEmail').text('인증완료').prop('disabled', true).addClass('verified');
+                if (!code) {
+                    alert('인증번호를 입력해주세요.');
+                    return;
+                }
 
-                // 3. 인증 플래그 설정
-                isEmailVerified = true;
+                $.ajax({
+                    url: '/user/my/setting/verifyEmailAuth',
+                    type: 'POST',
+                    data: { code: code, email: email },
+                    success: function (response) {
+                        if (response === 'success') {
+                            alert('이메일 인증이 완료되었습니다.');
 
-                // 4. 실제 DB 업데이트 요청
-                updateEmailAddr(verifiedEmail);
-            };
+                            // 1. UI 업데이트
+                            $('#emailCodeInputArea').hide();
+                            $('#btnVerifyEmail').text('인증완료').prop('disabled', true).addClass('verified');
+                            $('#email').prop('readonly', true).css('background-color', '#f0f0f0');
+
+                            // 2. 인증 플래그 설정
+                            isEmailVerified = true;
+
+                            // DB 업데이트 (옵션: 저장 버튼 누를 때 하거나 여기서 즉시 반영)
+                            // 여기서는 즉시 반영으로 통일
+                            updateEmailAddr(email);
+                        } else {
+                            alert('인증번호가 일치하지 않습니다.');
+                        }
+                    },
+                    error: function () {
+                        alert('서버 오류 발생');
+                    }
+                });
+            });
 
             function updateEmailAddr(email) {
                 $.ajax({
@@ -758,9 +798,7 @@
                     data: { email: email },
                     success: function (response) {
                         if (response === 'success') {
-                            alert('이메일 정보가 업데이트되었습니다.');
-                            // 원본 이메일 갱신 (추가 변경 막기 위해)
-                            // originalEmail = email; // const라 재할당 불가, 필요시 let으로 변경하거나 새로고침 유도
+                            // alert('이메일 정보가 업데이트되었습니다.'); // 인증 완료와 중복 알림 방지
                         } else if (response === 'same_email') {
                             alert('현재 사용 중인 이메일과 동일합니다.');
                         } else {
@@ -986,6 +1024,11 @@
                             th:value="${user.email != null ? user.email : 'ljw0232@gmail.com'}"
                             value="ljw0232@gmail.com">
                         <button type="button" class="btn-verify" id="btnVerifyEmail">인증</button>
+                    </div>
+                    <!-- 이메일 인증번호 입력 (숨김) -->
+                    <div id="emailCodeInputArea" class="input-with-btn" style="display: none; margin-top: 10px;">
+                        <input type="text" class="form-input" id="emailAuthCode" placeholder="인증번호 6자리 입력">
+                        <button type="button" class="btn-verify" id="btnConfirmEmail">확인</button>
                     </div>
                 </div>
             </div>

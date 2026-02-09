@@ -146,17 +146,11 @@
                 <label for="name">이름</label>
                 <input type="text" id="name" placeholder="이름 입력">
             </div>
-            <div class="form-group">
-                <label for="email">이메일</label>
-                <div style="display: flex; gap: 5px;">
-                    <input type="email" id="email" placeholder="example@email.com" style="flex: 1;">
-                    <button type="button" class="btn" id="btnSendCode"
-                        style="width: auto; margin-top: 0; padding: 0 15px; font-size: 14px;">인증요청</button>
-                </div>
-            </div>
+            <button type="button" class="btn" id="btnSendCode">인증번호 발송</button>
 
             <!-- 인증번호 입력 (숨김) -->
             <div id="authArea" style="display: none; margin-top: 15px;">
+                <div id="emailInfo" style="font-size: 13px; color: #666; margin-bottom: 10px;"></div>
                 <label for="authCode">인증번호</label>
                 <div style="display: flex; gap: 5px;">
                     <input type="text" id="authCode" placeholder="인증번호 6자리" style="flex: 1;">
@@ -203,20 +197,21 @@
                 const type = $('input[name="memberType"]:checked').val();
                 const id = $('#id').val().trim();
                 const name = $('#name').val().trim();
-                const email = $('#email').val().trim();
 
-                if (!id || !name || !email) {
-                    alert('모든 정보를 입력해주세요.');
+                if (!id || !name) {
+                    alert('아이디와 이름을 입력해주세요.');
                     return;
                 }
 
                 $.ajax({
                     url: '/common/member/sendPwAuthCode',
                     type: 'POST',
-                    data: { type: type, id: id, name: name, email: email },
+                    data: { type: type, id: id, name: name },
                     success: function (response) {
-                        if (response === 'success') {
-                            alert('이메일로 인증번호가 발송되었습니다.');
+                        // response가 not_found/fail이 아니면 마스킹된 이메일
+                        if (response && response !== 'not_found' && response !== 'fail') {
+                            alert('등록된 이메일로 인증번호가 발송되었습니다.');
+                            $('#emailInfo').html('인증번호가 <strong>' + response + '</strong> 으로 발송되었습니다.');
                             $('#authArea').slideDown();
                             $('#btnSendCode').text('재발송');
                         } else if (response === 'not_found') {

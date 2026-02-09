@@ -226,7 +226,10 @@ public class SettingController {
     /**
      * 이메일 인증번호 발송
      */
-    @GetMapping("/sendEmailAuth")
+    /**
+     * 이메일 인증번호 발송
+     */
+    @PostMapping("/sendEmailAuth")
     @ResponseBody
     public String sendEmailAuth(String email, HttpSession session) {
         System.out.println("[Debug] sendEmailAuth 호출됨: " + email);
@@ -235,8 +238,8 @@ public class SettingController {
 
         if (code != null) {
             session.setAttribute("emailCode", code);
-            System.out.println("[Debug] sendEmailAuth 반환: email_sent");
-            return "email_sent";
+            System.out.println("[Debug] sendEmailAuth 반환: success");
+            return "success";
         }
         System.out.println("[Debug] sendEmailAuth 반환: fail");
         return "fail";

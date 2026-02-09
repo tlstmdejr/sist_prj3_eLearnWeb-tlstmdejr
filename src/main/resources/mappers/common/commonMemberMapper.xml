@@ -16,12 +16,12 @@
 
     <!-- 사용자 이메일 정보 확인 (비밀번호 찾기) -->
     <select id="selectUserEmailByInfo" parameterType="java.util.Map" resultType="String">
-        SELECT EMAIL FROM USERS WHERE USER_ID = #{id} AND NAME = #{name} AND EMAIL = #{email}
+        SELECT EMAIL FROM USERS WHERE USER_ID = #{id} AND NAME = #{name}
     </select>
 
     <!-- 강사 이메일 정보 확인 (비밀번호 찾기) -->
     <select id="selectInstructorEmailByInfo" parameterType="java.util.Map" resultType="String">
-        SELECT EMAIL FROM INSTRUCTOR WHERE INST_ID = #{id} AND NAME = #{name} AND EMAIL = #{email}
+        SELECT EMAIL FROM INSTRUCTOR WHERE INST_ID = #{id} AND NAME = #{name}
     </select>
 
     <!-- 발송 이력 저장 -->

@@ -65,17 +65,21 @@ public class CommonMemberController {
 
     @PostMapping("/sendPwAuthCode")
     @ResponseBody
-    public String sendPwAuthCode(String type, String id, String name, String email, HttpSession session) {
-        String code = commonMemberService.sendPwAuthCode(type, id, name, email);
+    public String sendPwAuthCode(String type, String id, String name, HttpSession session) {
+        String result = commonMemberService.sendPwAuthCode(type, id, name);
 
-        if ("not_found".equals(code)) {
+        if ("not_found".equals(result)) {
             return "not_found";
         }
 
-        if (code != null) {
+        if (result != null && result.contains("##")) {
+            // 응답 형식: 마스킹이메일##인증코드
+            String[] parts = result.split("##");
+            String maskedEmail = parts[0];
+            String code = parts[1];
             session.setAttribute("findPwCode", code);
             session.setMaxInactiveInterval(300); // 5분
-            return "success";
+            return maskedEmail; // 마스킹된 이메일 반환
         }
         return "fail";
     }
