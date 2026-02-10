@@ -175,6 +175,25 @@ public class CommonMemberService {
     public boolean updatePassword(String type, String id, String newPw) {
         // 비밀번호 암호화
         org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+
+        // 1. 현재 비밀번호 확인 (재사용 방지)
+        String currentHash = null;
+        try {
+            if ("user".equals(type)) {
+                currentHash = commonMemberMapper.selectUserPassword(id);
+            } else if ("instructor".equals(type)) {
+                currentHash = commonMemberMapper.selectInstructorPassword(id);
+            }
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+            return false;
+        }
+
+        // 2. 기존 비밀번호와 동일한지 검사
+        if (currentHash != null && encoder.matches(newPw, currentHash)) {
+            return false; // 기존 비밀번호와 동일하면 변경 불가
+        }
+
         String encodedPw = encoder.encode(newPw);
 
         java.util.Map<String, String> params = new java.util.HashMap<>();

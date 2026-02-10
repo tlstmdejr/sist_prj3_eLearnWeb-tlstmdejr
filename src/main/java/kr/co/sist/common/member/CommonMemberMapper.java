@@ -44,6 +44,24 @@ public interface CommonMemberMapper {
     public String selectInstructorEmailByInfo(java.util.Map<String, String> params) throws PersistenceException;
 
     /**
+     * 사용자 비밀번호 조회 (재사용 방지용)
+     * 
+     * @param id 사용자 ID
+     * @return 비밀번호(Hash)
+     * @throws PersistenceException
+     */
+    public String selectUserPassword(String id) throws PersistenceException;
+
+    /**
+     * 강사 비밀번호 조회 (재사용 방지용)
+     * 
+     * @param id 강사 ID
+     * @return 비밀번호(Hash)
+     * @throws PersistenceException
+     */
+    public String selectInstructorPassword(String id) throws PersistenceException;
+
+    /**
      * 문자 발송 이력 저장
      * 
      * @param params (phone, email)

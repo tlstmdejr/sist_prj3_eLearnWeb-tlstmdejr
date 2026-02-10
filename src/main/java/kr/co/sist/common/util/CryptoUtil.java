@@ -113,7 +113,8 @@ public class CryptoUtil {
             return createEncryptor().decrypt(encryptedText);
         } catch (Exception e) {
             // 복호화 실패 시 원본 반환 (평문이거나 키 불일치)
-            return encryptedText;
+            e.printStackTrace();
+            return null;
         }
     }
 
