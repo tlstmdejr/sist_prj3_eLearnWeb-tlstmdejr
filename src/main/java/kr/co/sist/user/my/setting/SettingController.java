@@ -48,11 +48,6 @@ public class SettingController {
     /**
      * 이메일 인증 팝업 페이지
      */
-    @GetMapping("/emailAuth")
-    public String emailAuth() {
-        return "user/my/setting/emailAuth";
-    }
-
     // ===========================
     // 프로필 정보 수정
     // ===========================
