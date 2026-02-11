@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.co.sist.admin.member.login.AdminLoginMapper">
+<mapper namespace="kr.co.sist.admin.login.AdminLoginMapper">
 
     <!-- 관리자 로그인 조회 -->
-    <select id="selectAdmin" parameterType="String" resultType="AdminDomain">
+    <select id="selectAdmin" parameterType="String" resultType="kr.co.sist.admin.member.AdminDomain">
         SELECT ADM_ID as id, PASSWORD
         FROM MANAGER
         WHERE ADM_ID = #{adminId}

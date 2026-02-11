@@ -1,4 +1,4 @@
-package kr.co.sist.admin.member.login;
+package kr.co.sist.admin.login;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.exceptions.PersistenceException;

@@ -5,7 +5,7 @@
 <mapper namespace="kr.co.sist.user.my.setting.SettingMapper">
     
     <!-- 설정 상세 조회 -->
-    <select id="selectSettingInfo" resultType="SettingDomain">
+    <select id="selectSettingInfo" resultType="kr.co.sist.user.my.setting.SettingDomain">
         SELECT  USER_ID as id, NAME, PROFILE as img, EMAIL, PHONE, PASSWORD, INTRO
         FROM    users
         WHERE   user_id = #{userId}

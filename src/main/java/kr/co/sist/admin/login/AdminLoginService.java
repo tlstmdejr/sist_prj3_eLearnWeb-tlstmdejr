@@ -1,4 +1,4 @@
-package kr.co.sist.admin.member.login;
+package kr.co.sist.admin.login;
 
 import kr.co.sist.admin.member.AdminDTO;
 import kr.co.sist.admin.member.AdminDomain;
