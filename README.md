@@ -27,6 +27,12 @@
   - 비즈니스 로직 SQL 쿼리
   - ID 명명 규칙 및 제약사항
 
+- **[SQL_SCHEMA_ALIGNMENT.md](./SQL_SCHEMA_ALIGNMENT.md)** ⭐ NEW! - SQL 스키마 정렬 작업 문서
+  - 실제 DB와 프론트엔드 코드 간 불일치 사항 분석
+  - Before/After 비교
+  - 테이블/컬럼 매핑표
+  - VO 클래스 구현 가이드
+
 - **[project-overview.md](./project-overview.md)** - 프로젝트 전체 기능 및 워크플로우
   - 컨트롤러별 URL 매핑
   - 기능별 워크플로우
