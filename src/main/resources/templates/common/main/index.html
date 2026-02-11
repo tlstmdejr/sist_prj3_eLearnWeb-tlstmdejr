@@ -396,28 +396,32 @@ Spring Boot + MyBatis와 연동할 수 있습니다.
         
         3. Mapper (CourseMapper.xml):
         ```xml
-        <select id="selectCourseList" resultType="CourseVO">
+        <select id="selectCourseList" resultType="LectureVO">
             SELECT 
-                course_id, title, instructor, price, original_price,
-                rating, review_count, category, level, description
-            FROM (
-                SELECT ROWNUM rnum, c.*
-                FROM (
-                    SELECT * FROM courses
-                    <where>
-                        <if test="category != null and category != 'all'">
-                            AND category = #{category}
-                        </if>
-                        <if test="search != null">
-                            AND (title LIKE '%'||#{search}||'%' 
-                                 OR instructor LIKE '%'||#{search}||'%')
-                        </if>
-                    </where>
-                    ORDER BY created_at DESC
-                ) c
-                WHERE ROWNUM <= #{endRow}
-            )
-            WHERE rnum > #{startRow}
+                l.LECT_ID as lectId,
+                l.NAME as name,
+                i.NAME as instructorName,
+                l.PRICE as price,
+                l.CAT_ID as categoryId,
+                c.NAME as categoryName,
+                AVG(r.SCORE) as avgRating,
+                COUNT(r.REVIEW_ID) as reviewCount
+            FROM LECTURE l
+            INNER JOIN INSTRUCTOR i ON l.INST_ID = i.INST_ID
+            INNER JOIN CATEGORY c ON l.CAT_ID = c.CAT_ID
+            LEFT JOIN REVIEW r ON l.LECT_ID = r.LECT_ID
+            <where>
+                l.AVAILABILITY = 1 AND l.APPROVAL = 1
+                <if test="category != null and category != 'all'">
+                    AND l.CAT_ID = #{category}
+                </if>
+                <if test="search != null">
+                    AND (l.NAME LIKE '%'||#{search}||'%' 
+                         OR i.NAME LIKE '%'||#{search}||'%')
+                </if>
+            </where>
+            GROUP BY l.LECT_ID, l.NAME, i.NAME, l.PRICE, l.CAT_ID, c.NAME
+            ORDER BY l.REGDATE DESC
         </select>
         ```
         
@@ -426,15 +430,15 @@ Spring Boot + MyBatis와 연동할 수 있습니다.
         <!-- 카테고리 필터 -->
         <div th:each="cat : ${categories}">
             <button th:text="${cat.name}" 
-                    th:classappend="${currentCategory == cat.id} ? 'active' : ''">
+                    th:classappend="${currentCategory == cat.catId} ? 'active' : ''">
             </button>
         </div>
         
         <!-- 강의 목록 -->
-        <div th:each="course : ${courses}">
-            <h3 th:text="${course.title}">강의 제목</h3>
-            <p th:text="${course.instructor}">강사명</p>
-            <span th:text="${#numbers.formatInteger(course.price, 0, 'COMMA')}">가격</span>
+        <div th:each="lecture : ${lectures}">
+            <h3 th:text="${lecture.name}">강의 제목</h3>
+            <p th:text="${lecture.instructorName}">강사명</p>
+            <span th:text="${#numbers.formatInteger(lecture.price, 0, 'COMMA')} + '원'">가격</span>
         </div>
         ```
         ================================================
