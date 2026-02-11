@@ -20,7 +20,23 @@ public class CommonMemberController {
         this.commonMemberService = commonMemberService;
     }
 
-    @GetMapping({ "/findIdFrm", "/findId" })
+    /**
+     * 공통 로그인 페이지 (사용자/강사 탭 전환)
+     */
+    @GetMapping("/loginFrm")
+    public String loginFrm() {
+        return "common/member/loginFrm";
+    }
+
+    /**
+     * 공통 회원가입 선택 페이지 (학생/강사 선택)
+     */
+    @GetMapping("/joinSelectFrm")
+    public String joinSelectFrm() {
+        return "common/member/joinSelectFrm";
+    }
+
+    @GetMapping("/findIdFrm")
     public String findIdFrm() {
         return "common/member/findIdFrm";
     }

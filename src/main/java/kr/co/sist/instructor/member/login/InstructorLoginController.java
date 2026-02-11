@@ -35,13 +35,13 @@ public class InstructorLoginController {
             return "redirect:/instructor/dashboard"; // 이동할 페이지 확인 필요
         }
         model.addAttribute("msg", "아이디/비밀번호를 확인하거나 승인 대기 중입니다.");
-        return "instructor/member/login/loginFrm";
+        return "common/member/loginFrm";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/instructor/login/loginFrm";
+        return "redirect:/common/member/loginFrm";
     }
 
 }

@@ -49,7 +49,7 @@ public class LoginController {
 		} else { // 로그인 실패
 			System.out.println("로그인 실패: ud is null");
 			model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
-			return "user/member/login/loginFrm";
+			return "common/member/loginFrm";
 		}
 	}
 

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 - IntLearn</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ========== 전체 컨테이너 ========== */
+        .join-select-container {
+            text-align: center;
+        }
+
+        /* ========== 타이틀 ========== */
+        .join-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        /* ========== 카드 영역 ========== */
+        .card-group {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        /* 각 카드 공통 스타일 */
+        .join-card {
+            width: 240px;
+            height: 160px;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .join-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .join-card:active {
+            transform: translateY(0);
+        }
+
+        /* 학생 카드 (녹색) */
+        .card-student {
+            background: #1dc078;
+        }
+
+        /* 강사 카드 (보라색) */
+        .card-instructor {
+            background: #6b5ce7;
+        }
+
+        /* 카드 아이콘 */
+        .join-card .card-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        /* 카드 텍스트 */
+        .join-card .card-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== 뒤로 버튼 ========== */
+        .btn-back {
+            display: inline-block;
+            padding: 10px 28px;
+            background: #1dc078;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #17a866;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="join-select-container">
+
+        <!-- 타이틀 -->
+        <div class="join-title">회원가입 유형을 선택해주세요</div>
+
+        <!-- 학생 / 강사 선택 카드 -->
+        <div class="card-group">
+            <!-- 학생(사용자) 회원가입 카드 -->
+            <a href="/user/member/joinFrm" class="join-card card-student">
+                <span class="card-icon">🎓</span>
+                <span class="card-text">학생 회원가입</span>
+            </a>
+
+            <!-- 강사 회원가입 카드 -->
+            <a href="/instructor/member/joinFrm" class="join-card card-instructor">
+                <span class="card-icon">👨‍🏫</span>
+                <span class="card-text">강사 회원가입</span>
+            </a>
+        </div>
+
+        <!-- 뒤로(로그인) 버튼 -->
+        <a href="/common/member/loginFrm" class="btn-back">뒤로</a>
+
+    </div>
+</body>
+
+</html>

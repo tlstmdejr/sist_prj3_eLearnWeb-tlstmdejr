@@ -111,33 +111,44 @@ public class CommonMemberService {
      * @return 마스킹된 이메일 / not_found / null
      */
     public String sendPwAuthCode(String type, String id, String name) {
-        String foundEmail = null;
+        java.util.Map<String, Object> result = null;
 
         try {
-            // 이름 암호화 (DB에 암호화됐 저장됨)
-            String encryptedName = cryptoUtil.encrypt(name);
-
-            java.util.Map<String, String> params = new java.util.HashMap<>();
-            params.put("id", id);
-            params.put("name", encryptedName);
-
+            // ID로만 조회하여 이름+이메일을 가져옴
             if ("user".equals(type)) {
-                foundEmail = commonMemberMapper.selectUserEmailByInfo(params);
+                result = commonMemberMapper.selectUserNameEmailById(id);
             } else if ("instructor".equals(type)) {
-                foundEmail = commonMemberMapper.selectInstructorEmailByInfo(params);
+                result = commonMemberMapper.selectInstructorNameEmailById(id);
             }
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
 
-        if (foundEmail == null) {
+        // 해당 ID의 회원이 없는 경우
+        if (result == null) {
+            return "not_found";
+        }
+
+        // DB에서 가져온 암호화된 이름을 복호화하여 사용자 입력과 비교
+        String encryptedDbName = (String) result.get("NAME");
+        String decryptedDbName = null;
+        try {
+            decryptedDbName = cryptoUtil.decrypt(encryptedDbName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "not_found"; // 복호화 실패 시
+        }
+
+        // 이름 불일치 시
+        if (decryptedDbName == null || !decryptedDbName.equals(name)) {
             return "not_found";
         }
 
         // 이메일 복호화
+        String encryptedEmail = (String) result.get("EMAIL");
         String decryptedEmail = null;
         try {
-            decryptedEmail = cryptoUtil.decrypt(foundEmail);
+            decryptedEmail = cryptoUtil.decrypt(encryptedEmail);
         } catch (Exception e) {
             e.printStackTrace();
             return null; // 복호화 실패 시 중단

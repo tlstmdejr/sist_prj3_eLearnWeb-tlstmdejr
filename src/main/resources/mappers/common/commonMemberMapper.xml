@@ -14,14 +14,14 @@
         SELECT INST_ID FROM INSTRUCTOR WHERE PHONE = #{phone}
     </select>
 
-    <!-- 사용자 이메일 정보 확인 (비밀번호 찾기) -->
-    <select id="selectUserEmailByInfo" parameterType="java.util.Map" resultType="String">
-        SELECT EMAIL FROM USERS WHERE USER_ID = #{id} AND NAME = #{name}
+    <!-- 사용자 이름+이메일 조회 (비밀번호 찾기 - ID로만 조회) -->
+    <select id="selectUserNameEmailById" parameterType="String" resultType="java.util.Map">
+        SELECT NAME, EMAIL FROM USERS WHERE USER_ID = #{id}
     </select>
 
-    <!-- 강사 이메일 정보 확인 (비밀번호 찾기) -->
-    <select id="selectInstructorEmailByInfo" parameterType="java.util.Map" resultType="String">
-        SELECT EMAIL FROM INSTRUCTOR WHERE INST_ID = #{id} AND NAME = #{name}
+    <!-- 강사 이름+이메일 조회 (비밀번호 찾기 - ID로만 조회) -->
+    <select id="selectInstructorNameEmailById" parameterType="String" resultType="java.util.Map">
+        SELECT NAME, EMAIL FROM INSTRUCTOR WHERE INST_ID = #{id}
     </select>
     
     <!-- 사용자 비밀번호 조회 (재사용 방지용) -->

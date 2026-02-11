@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>로그인 - IntLearn</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ========== 로그인 박스 컨테이너 ========== */
+        .login-box {
+            width: 420px;
+            padding: 40px 36px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        /* 닫기(X) 버튼 */
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 22px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* ========== 로고 영역 ========== */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-area .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1dc078;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-area .logo-icon {
+            font-size: 32px;
+            margin-right: 4px;
+        }
+
+        /* ========== 탭 버튼 (사용자/강사 전환) ========== */
+        .tab-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            padding: 8px 24px;
+            border: 1.5px solid #ccc;
+            border-radius: 20px;
+            background: #fff;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: #1dc078;
+            color: #1dc078;
+        }
+
+        /* 활성화된 탭 스타일 */
+        .tab-btn.active {
+            background: #1dc078;
+            color: #fff;
+            border-color: #1dc078;
+        }
+
+        /* ========== 입력 필드 스타일 ========== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input::placeholder {
+            color: #aaa;
+        }
+
+        .form-group input:focus {
+            border-color: #1dc078;
+        }
+
+        /* 비밀번호 필드 (눈 아이콘 포함) */
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 44px;
+        }
+
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            font-size: 18px;
+            background: none;
+            border: none;
+        }
+
+        .toggle-pw:hover {
+            color: #666;
+        }
+
+        /* ========== 로그인 버튼 ========== */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #1dc078;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-login:hover {
+            background: #17a866;
+        }
+
+        /* ========== 하단 링크 영역 ========== */
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        .links a {
+            color: #888;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            color: #1dc078;
+        }
+
+        .links .divider {
+            color: #ddd;
+        }
+
+        /* ========== 에러 메시지 ========== */
+        .error-msg {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+    </style>
+
+    <script type="text/javascript">
+        $(function () {
+
+            // ========== 탭 전환 기능 ==========
+            // 사용자 탭 클릭 시
+            $('#tabUser').click(function () {
+                // 탭 활성화 스타일 변경
+                $(this).addClass('active');
+                $('#tabInst').removeClass('active');
+
+                // 폼 action URL 변경 (사용자 로그인 처리 경로)
+                $('#loginForm').attr('action', '/user/member/login/loginProcess');
+                // input name 변경 (사용자는 'id' 파라미터 사용)
+                $('#loginId').attr('name', 'id');
+                // placeholder 변경
+                $('#loginId').attr('placeholder', '아이디');
+
+                // 하단 링크 표시 전환 (사용자용 링크 표시)
+                $('#userLinks').show();
+                $('#instLinks').hide();
+
+                // 입력값 초기화
+                $('#loginId').val('');
+                $('#loginPw').val('');
+            });
+
+            // 강사 탭 클릭 시
+            $('#tabInst').click(function () {
+                // 탭 활성화 스타일 변경
+                $(this).addClass('active');
+                $('#tabUser').removeClass('active');
+
+                // 폼 action URL 변경 (강사 로그인 처리 경로)
+                $('#loginForm').attr('action', '/instructor/login/loginProcess');
+                // input name 변경 (강사는 'instId' 파라미터 사용)
+                $('#loginId').attr('name', 'instId');
+                // placeholder 변경
+                $('#loginId').attr('placeholder', '강사 아이디');
+
+                // 하단 링크 표시 전환 (강사용 링크 표시)
+                $('#userLinks').hide();
+                $('#instLinks').show();
+
+                // 입력값 초기화
+                $('#loginId').val('');
+                $('#loginPw').val('');
+            });
+
+            // ========== 비밀번호 보기/숨기기 토글 ==========
+            $('#togglePw').click(function () {
+                var pwInput = $('#loginPw');
+                if (pwInput.attr('type') === 'password') {
+                    pwInput.attr('type', 'text');
+                    $(this).text('🙈');
+                } else {
+                    pwInput.attr('type', 'password');
+                    $(this).text('👁');
+                }
+            });
+
+            // ========== 폼 유효성 검사 ==========
+            $('#loginForm').submit(function () {
+                var id = $('#loginId').val().trim();
+                var password = $('#loginPw').val().trim();
+
+                if (id === '') {
+                    alert('아이디를 입력해주세요.');
+                    $('#loginId').focus();
+                    return false;
+                }
+                if (password === '') {
+                    alert('비밀번호를 입력해주세요.');
+                    $('#loginPw').focus();
+                    return false;
+                }
+                return true;
+            });
+
+            // ========== 에러 메시지 처리 (Thymeleaf에서 전달된 값) ==========
+            var msg = '[[${msg}]]';
+            if (msg && msg !== '' && msg.indexOf('$') === -1) {
+                alert(msg);
+            }
+
+        }); // ready
+    </script>
+</head>
+
+<body>
+    <div class="login-box">
+
+        <!-- 닫기 버튼 (메인으로 이동) -->
+        <button class="close-btn" onclick="location.href='/'">&times;</button>
+
+        <!-- 로고 영역 -->
+        <div class="logo-area">
+            <span class="logo-icon">📘</span>
+            <span class="logo-text">IntLearn</span>
+        </div>
+
+        <!-- 사용자 / 강사 전환 탭 버튼 -->
+        <div class="tab-group">
+            <button type="button" id="tabUser" class="tab-btn active">사용자</button>
+            <button type="button" id="tabInst" class="tab-btn">강사</button>
+        </div>
+
+        <!-- 에러 메시지 표시 영역 -->
+        <div class="error-msg" th:if="${msg}" th:text="${msg}"></div>
+
+        <!-- 로그인 폼 (기본: 사용자 로그인) -->
+        <form id="loginForm" th:action="@{/user/member/login/loginProcess}" method="post">
+            <div class="form-group">
+                <input type="text" id="loginId" name="id" placeholder="아이디">
+            </div>
+            <div class="form-group password-wrap">
+                <input type="password" id="loginPw" name="password" placeholder="비밀번호">
+                <button type="button" id="togglePw" class="toggle-pw">👁</button>
+            </div>
+            <button type="submit" class="btn-login">로그인</button>
+        </form>
+        <!-- 로그인 폼 (기본: 강사 로그인) -->
+        <form id="loginForm" th:action="@{/instructor/member/login/loginProcess}" method="post">
+            <div class="form-group">
+                <input type="text" id="loginId" name="instId" placeholder="아이디">
+            </div>
+            <div class="form-group password-wrap">
+                <input type="password" id="loginPw" name="password" placeholder="비밀번호">
+                <button type="button" id="togglePw" class="toggle-pw">👁</button>
+            </div>
+            <button type="submit" class="btn-login">로그인</button>
+        </form>
+
+        <!-- 하단 링크 - 사용자용 (기본 표시) -->
+        <div class="links" id="userLinks">
+            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
+            <span class="divider">|</span>
+            <a href="/common/member/joinSelectFrm">회원가입</a>
+            <span class="divider">|</span>
+            <a href="/common/member/findIdFrm">아이디 찾기</a>
+        </div>
+
+        <!-- 하단 링크 - 강사용 (탭 전환 시 표시) -->
+        <div class="links" id="instLinks" style="display: none;">
+            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
+            <span class="divider">|</span>
+            <a href="/common/member/joinSelectFrm">회원가입</a>
+            <span class="divider">|</span>
+            <a href="/common/member/findIdFrm">아이디 찾기</a>
+        </div>
+
+    </div>
+</body>
+
+</html>
