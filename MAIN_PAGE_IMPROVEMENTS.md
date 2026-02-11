@@ -155,20 +155,38 @@ public class CourseService {
 }
 ```
 
-#### MyBatis Mapper XML 예시
+#### MyBatis Mapper XML 예시 (실제 테이블 사용)
 ```xml
 <select id="selectCourseList" resultType="CourseVO">
-    SELECT course_id, title, instructor, price, rating
-    FROM courses
+    SELECT 
+        l.LECT_ID as lectId,
+        l.NAME as name,
+        i.NAME as instructorName,
+        l.PRICE as price,
+        l.THUMBNAIL as thumbnail,
+        l.SHORTINT as shortInt,
+        l.INTRO as intro,
+        c.NAME as categoryName,
+        l.USERCOUNT as userCount,
+        COALESCE(AVG(r.SCORE), 0) as avgRating,
+        COALESCE(COUNT(r.REVIEW_ID), 0) as reviewCount
+    FROM LECTURE l
+    INNER JOIN INSTRUCTOR i ON l.INST_ID = i.INST_ID
+    INNER JOIN CATEGORY c ON l.CAT_ID = c.CAT_ID
+    LEFT JOIN REVIEW r ON l.LECT_ID = r.LECT_ID
     <where>
-        <if test="category != null">
-            AND category = #{category}
+        l.AVAILABILITY = 1 AND l.APPROVAL = 1
+        <if test="category != null and category != 'all'">
+            AND l.CAT_ID = #{category}
         </if>
         <if test="search != null">
-            AND title LIKE '%'||#{search}||'%'
+            AND (l.NAME LIKE '%'||#{search}||'%' 
+                 OR i.NAME LIKE '%'||#{search}||'%')
         </if>
     </where>
-    ORDER BY created_at DESC
+    GROUP BY l.LECT_ID, l.NAME, i.NAME, l.PRICE, l.THUMBNAIL, 
+             l.SHORTINT, l.INTRO, c.NAME, l.USERCOUNT, l.REGDATE
+    ORDER BY l.REGDATE DESC
 </select>
 ```
 
@@ -230,46 +248,95 @@ public class CourseService {
    - 현재 HTML의 JavaScript 데이터를 제거
    - `th:each`, `th:if`, `th:text` 등으로 대체
 
-#### 데이터베이스 테이블 설계
+#### 데이터베이스 테이블 설계 (실제 스키마 - intlearn_05_njw.sql 참조)
+
+> 📖 상세한 스키마는 `DATABASE_SCHEMA.md` 문서를 참조하세요.
+
 ```sql
--- 카테고리 테이블
-CREATE TABLE categories (
-    category_id VARCHAR2(20) PRIMARY KEY,
-    category_name VARCHAR2(50) NOT NULL,
-    icon_name VARCHAR2(50),
-    is_active CHAR(1) DEFAULT 'Y'
+-- 카테고리 테이블 (실제: CATEGORY)
+CREATE TABLE CATEGORY (
+    CAT_ID VARCHAR2(30) PRIMARY KEY,        -- 카테고리 ID: CAT1, CAT2, ...
+    NAME VARCHAR2(50) NOT NULL               -- 카테고리명: 데이터베이스, 웹 프로그래밍, 인공지능 등
 );
+-- 샘플 데이터: 10개 카테고리 (CAT1~CAT10)
+-- CAT1: 데이터베이스, CAT2: 웹 프로그래밍, CAT3: 인공지능, CAT4: 모바일 앱
+-- CAT5: 게임 개발, CAT6: 보안, CAT7: 데이터 분석, CAT8: 클라우드
+-- CAT9: 디자인, CAT10: 교양
 
--- 강의 테이블
-CREATE TABLE courses (
-    course_id NUMBER PRIMARY KEY,
-    title VARCHAR2(200) NOT NULL,
-    instructor_name VARCHAR2(50),
-    price NUMBER,
-    original_price NUMBER,
-    rating NUMBER(2,1),
-    review_count NUMBER,
-    category_id VARCHAR2(20),
-    level VARCHAR2(20),
-    description VARCHAR2(1000),
-    created_at DATE DEFAULT SYSDATE,
-    is_active CHAR(1) DEFAULT 'Y',
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+-- 강사 테이블 (실제: INSTRUCTOR)
+CREATE TABLE INSTRUCTOR (
+    INST_ID VARCHAR2(30) PRIMARY KEY,        -- 강사 ID: inst1, inst2, ...
+    PASSWORD VARCHAR2(100) NOT NULL,         -- 비밀번호 (BCrypt 암호화)
+    BIRTH DATE NOT NULL,                     -- 생년월일
+    EMAIL VARCHAR2(100) NOT NULL,            -- 이메일
+    NAME VARCHAR2(100) NOT NULL,             -- 강사명
+    PHONE VARCHAR2(11) NOT NULL,             -- 전화번호
+    PROFILE VARCHAR2(30) NOT NULL,           -- 프로필 이미지
+    ACTIVATION NUMBER(1) NOT NULL,           -- 활성화 상태 (0:비활성, 1:활성)
+    APPROVAL NUMBER(1) NOT NULL,             -- 승인 상태 (0:대기, 1:승인)
+    REGDATE DATE DEFAULT SYSDATE NOT NULL,   -- 가입일
+    REGIP VARCHAR2(30) NOT NULL              -- 가입 IP
 );
+-- 샘플 데이터: 10명 강사 (inst1~inst10)
 
--- 배너 테이블
-CREATE TABLE banners (
-    banner_id NUMBER PRIMARY KEY,
-    badge VARCHAR2(20),
-    title VARCHAR2(200),
-    description VARCHAR2(500),
-    button_text VARCHAR2(50),
-    bg_color VARCHAR2(50),
-    display_order NUMBER,
-    is_active CHAR(1) DEFAULT 'Y',
-    created_at DATE DEFAULT SYSDATE
+-- 강의 테이블 (실제: LECTURE)
+CREATE TABLE LECTURE (
+    LECT_ID VARCHAR2(30) PRIMARY KEY,        -- 강의 ID: L1, L2, ...
+    NAME VARCHAR2(100) NOT NULL,             -- 강의명
+    PRICE NUMBER(6) NOT NULL,                -- 가격 (예: 30000, 50000)
+    SHORTINT VARCHAR2(100) NOT NULL,         -- 짧은 소개
+    INTRO CLOB NOT NULL,                     -- 상세 소개
+    COUNT NUMBER(2) NOT NULL,                -- 챕터 수
+    LENGTH NUMBER(3) NOT NULL,               -- 총 강의 시간(분)
+    AVAILABILITY NUMBER(1) NOT NULL,         -- 공개 여부 (0:비공개, 1:공개)
+    CAT_ID VARCHAR2(30),                     -- 카테고리 ID (FK)
+    INST_ID VARCHAR2(30),                    -- 강사 ID (FK)
+    THUMBNAIL VARCHAR2(30) NOT NULL,         -- 썸네일 이미지
+    USERCOUNT NUMBER(5) NOT NULL,            -- 수강생 수
+    REGDATE DATE DEFAULT SYSDATE NOT NULL,   -- 등록일
+    REGIP VARCHAR2(30) NOT NULL,             -- 등록 IP
+    APPROVAL NUMBER(1) NOT NULL,             -- 승인 상태 (0:거절, 1:승인)
+    REJECT_REASON VARCHAR2(1000),            -- 거절 사유
+    FOREIGN KEY (CAT_ID) REFERENCES CATEGORY(CAT_ID),
+    FOREIGN KEY (INST_ID) REFERENCES INSTRUCTOR(INST_ID)
 );
+-- 샘플 데이터: 10개 강의 (L1~L10)
+-- L1: SQL 입문 (30,000원), L2: Java 마스터 (50,000원)
+-- L3: AI 첫걸음 (40,000원), L4: 앱 개발 (55,000원)
+-- L5: Unity 게임 (60,000원) - 승인 거절, L6: 정보보안 (45,000원)
+-- L7: 데이터 분석 (50,000원), L8: AWS 클라우드 (80,000원)
+-- L9: UI 디자인 (35,000원) - 비공개, L10: 교양 철학 (20,000원)
+
+-- 리뷰 테이블 (실제: REVIEW)
+CREATE TABLE REVIEW (
+    REVIEW_ID VARCHAR2(30) PRIMARY KEY,      -- 리뷰 ID
+    SCORE NUMBER(1) NOT NULL,                -- 평점 (1~5)
+    CONTENT VARCHAR2(1000) NOT NULL,         -- 리뷰 내용
+    REGDATE DATE DEFAULT SYSDATE NOT NULL,   -- 작성일
+    REGIP VARCHAR2(30) NOT NULL,             -- 작성 IP
+    LECT_ID VARCHAR2(30),                    -- 강의 ID (FK)
+    USER_ID VARCHAR2(30),                    -- 사용자 ID (FK)
+    FOREIGN KEY (LECT_ID) REFERENCES LECTURE(LECT_ID),
+    FOREIGN KEY (USER_ID) REFERENCES USERS(USER_ID)
+);
+-- 리뷰 평점을 집계하여 강의별 평균 평점 및 리뷰 수를 계산
 ```
+
+#### 실제 테이블과 컬럼 매핑
+
+| HTML 필드 | 실제 테이블 | 실제 컬럼 | 비고 |
+|----------|-----------|----------|------|
+| category.id | CATEGORY | CAT_ID | CAT1, CAT2, ... |
+| category.name | CATEGORY | NAME | 데이터베이스, 웹 프로그래밍, ... |
+| course.id | LECTURE | LECT_ID | L1, L2, ... |
+| course.title | LECTURE | NAME | 강의명 |
+| course.instructor | INSTRUCTOR | NAME | 강사명 (조인 필요) |
+| course.price | LECTURE | PRICE | 가격 (원) |
+| course.rating | REVIEW | AVG(SCORE) | 평균 평점 (집계) |
+| course.reviewCount | REVIEW | COUNT(*) | 리뷰 수 (집계) |
+| course.category | LECTURE | CAT_ID | 카테고리 ID |
+| course.description | LECTURE | INTRO | 상세 소개 |
+| course.thumbnail | LECTURE | THUMBNAIL | 썸네일 이미지 |
 
 ## 참고사항
 - 원본 파일 (`3차 메인페이지 테스트 백업.html`)은 그대로 유지
