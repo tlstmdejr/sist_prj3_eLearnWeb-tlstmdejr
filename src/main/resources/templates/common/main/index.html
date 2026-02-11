@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<!--
+================================================
+파일명: index.html
+작성일: 2026-02-11
+설명: 인런(InLearn) e-Learning 플랫폼 메인 페이지
+================================================
+
+[전체 구조 설명]
+이 페이지는 온라인 강의 플랫폼의 메인 페이지입니다.
+주요 구성 요소:
+1. Header (헤더): 로고, 검색바, 사용자 메뉴
+2. Hero Banner (메인 배너): Swiper를 이용한 슬라이드 배너
+3. Course Section (강의 목록): 카테고리별 강의 필터링 및 표시
+4. Community Section (커뮤니티): 인기 아티클 표시
+5. Footer (푸터): 회사 정보 및 링크
+
+[기술 스택]
+- Tailwind CSS: 유틸리티 기반 CSS 프레임워크
+- Lucide Icons: 아이콘 라이브러리
+- Swiper: 터치 슬라이더 라이브러리
+- Vanilla JavaScript: 동적 기능 구현
+
+[Spring + MyBatis 연동 시 변경 사항]
+이 파일은 현재 정적 HTML이지만, Thymeleaf 템플릿 엔진을 사용하여
+Spring Boot + MyBatis와 연동할 수 있습니다.
+주요 변경 사항은 각 섹션에 주석으로 표시되어 있습니다.
+================================================
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인런 (InLearn) - Wide Design</title>
+    
+    <!-- ==================== 외부 라이브러리 CDN ==================== -->
+    <!-- Tailwind CSS: 유틸리티 기반 CSS 프레임워크 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons: 가볍고 일관성 있는 아이콘 라이브러리 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Swiper CSS: 터치 슬라이더 라이브러리 스타일시트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- Swiper JS: 터치 슬라이더 라이브러리 자바스크립트 -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <!-- ==================== 커스텀 스타일 ==================== -->
+    <style>
+        /* ==================== 기본 폰트 및 스타일 ==================== */
+        /* 한글 가독성을 위한 시스템 폰트 사용 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        
+        /* 텍스트 2줄 이상 시 말줄임표(...) 처리 */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* ==================== Swiper 슬라이더 커스텀 스타일 ==================== */
+        .swiper {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 페이지네이션 활성 버튼 색상: Emerald-500 */
+        .swiper-pagination-bullet-active {
+            background-color: #10b981 !important;
+        }
+        
+        /* 좌우 화살표 버튼 스타일 */
+        .swiper-button-next, .swiper-button-prev {
+            color: white !important;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        
+        /* 화살표 호버 시 불투명도 증가 */
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            opacity: 1;
+        }
+
+        /* ==================== 애니메이션 ==================== */
+        /* 페이드인 효과: 요소가 부드럽게 나타남 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 selection:bg-emerald-100">
+
+    <!-- 
+    ================================================
+    HEADER (헤더)
+    ================================================
+    역할: 사이트 네비게이션 및 사용자 인터페이스 제공
+    구성 요소:
+    - 로고 (InLearn 브랜드)
+    - 모바일 메뉴 버튼
+    - 검색바 (데스크톱/모바일)
+    - 사용자 액션 버튼 (장바구니, 알림, 로그인, 회원가입)
+    
+    기술적 특징:
+    - Sticky 포지션: 스크롤 시 상단 고정
+    - Backdrop blur: 반투명 배경 효과
+    - 반응형 디자인: 모바일/데스크톱 최적화
+    
+    [Spring + MyBatis 연동 시]
+    - 로그인 상태 확인: th:if="${session.user != null}"
+    - 사용자 이름 표시: th:text="${session.user.name}"
+    - 장바구니 개수: th:text="${cartCount}"
+    ================================================
+    -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div class="max-w-screen-xl mx-auto px-4 h-16 flex items-center justify-between">
+            <!-- 로고 및 모바일 메뉴 버튼 -->
+            <div class="flex items-center gap-4">
+                <!-- 모바일 메뉴 토글 버튼 -->
+                <button id="mobile-menu-btn" class="p-2 hover:bg-gray-100 rounded-full">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                
+                <!-- 로고: 클릭 시 홈으로 이동 -->
+                <!-- [Spring 연동] th:href="@{/}" 사용 -->
+                <a href="#" class="text-2xl font-bold text-emerald-600 tracking-tighter flex items-center gap-1">
+                    <i data-lucide="book-open" class="fill-emerald-600 w-6 h-6"></i>
+                    InLearn
+                </a>
+            </div>
+
+            <!-- 검색바 (데스크톱): md 사이즈 이상에서만 표시 -->
+            <div class="hidden md:flex flex-1 max-w-lg mx-8 relative">
+                <!-- [Spring 연동] 
+                     검색 폼: th:action="@{/search}" method="get"
+                     검색어: th:value="${searchQuery}"
+                -->
+                <input type="text" id="search-input" placeholder="배우고 싶은 지식을 입력해보세요." 
+                    class="w-full bg-gray-100 text-gray-800 rounded-md py-2.5 px-4 pl-11 focus:outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 border border-transparent focus:border-emerald-500 transition-all text-sm">
+                <i data-lucide="search" class="absolute left-3.5 top-3 text-gray-400 w-4 h-4"></i>
+            </div>
+
+            <!-- 사용자 액션 버튼 -->
+            <div class="flex items-center gap-2">
+                <!-- 장바구니 버튼 -->
+                <!-- [Spring 연동] 장바구니 개수: th:text="${cartCount}" -->
+                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-full relative transition-colors">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span id="cart-badge" class="hidden absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                </button>
+                
+                <!-- 알림 버튼 (데스크톱만) -->
+                <button class="p-2 text-gray-600 hover:bg-gray-100 rounded-full hidden sm:block transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </button>
+                
+                <!-- 구분선 -->
+                <div class="w-px h-4 bg-gray-300 mx-2 hidden sm:block"></div>
+                
+                <!-- 로그인 버튼 -->
+                <!-- [Spring 연동] 
+                     비로그인: th:if="${session.user == null}"
+                     로그인: th:href="@{/login}"
+                -->
+                <button class="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded font-bold text-sm hover:bg-emerald-700 transition-colors shadow-sm hover:shadow">
+                    로그인
+                </button>
+                
+                <!-- 회원가입 버튼 -->
+                <!-- [Spring 연동] th:href="@{/register}" -->
+                <button class="hidden sm:flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded font-bold text-sm hover:bg-gray-50 transition-colors">
+                    회원가입
+                </button>
+                
+                <!-- 사용자 아이콘 (모바일만) -->
+                <button class="sm:hidden p-2 text-gray-600">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 모바일 검색바: md 미만 사이즈에서만 표시 -->
+        <div class="md:hidden px-4 pb-3 border-t border-gray-100 pt-3">
+            <div class="relative">
+                <input type="text" id="mobile-search-input" placeholder="강의 검색..." 
+                    class="w-full bg-gray-100 rounded-lg py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <i data-lucide="search" class="absolute left-3 top-2.5 text-gray-400 w-4 h-4"></i>
+            </div>
+        </div>
+
+        <!-- 모바일 메뉴 드롭다운: JavaScript로 토글 -->
+        <div id="mobile-menu" class="hidden bg-white border-t border-gray-100 absolute w-full shadow-lg left-0 z-50">
+            <div class="flex flex-col p-4 gap-4 font-medium text-gray-700">
+                <!-- [Spring 연동] 메뉴 항목들을 th:each로 반복 처리 가능 -->
+                <a href="#" class="py-2 border-b border-gray-100 hover:text-emerald-600 transition-colors">강사 신청</a>
+                <a href="#" class="py-2 border-b border-gray-100 hover:text-emerald-600 transition-colors">공지사항</a>
+                <a href="#" class="py-2 border-b border-gray-100 hover:text-emerald-600 transition-colors">회사소개</a>
+                <a href="#" class="py-2 hover:text-emerald-600 transition-colors">커뮤니티</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 
+    ================================================
+    MAIN CONTENT (메인 콘텐츠)
+    ================================================
+    -->
+    <main>
+        <!-- 
+        ================================================
+        HERO BANNER (메인 배너)
+        ================================================
+        역할: 주요 프로모션, 이벤트, 신규 강의 홍보
+        기술: Swiper 라이브러리를 이용한 자동 슬라이드
+        
+        특징:
+        - Full Width 배경
+        - 콘텐츠는 max-w-screen-xl로 중앙 정렬
+        - 자동 재생 (4초 간격)
+        - Fade 효과
+        - 페이지네이션 및 화살표 네비게이션
+        
+        [Spring + MyBatis 연동 시]
+        슬라이드 데이터를 DB에서 가져옴:
+        
+        Controller:
+        @GetMapping("/")
+        public String mainPage(Model model) {
+            List<BannerVO> banners = bannerService.selectActiveBanners();
+            model.addAttribute("banners", banners);
+            return "common/main/index";
+        }
+        
+        Thymeleaf 템플릿:
+        <div th:each="banner : ${banners}" class="swiper-slide">
+            <div th:style="'background-color:' + ${banner.bgColor}">
+                <span th:text="${banner.badge}">EVENT</span>
+                <h1 th:text="${banner.title}">타이틀</h1>
+                <p th:text="${banner.description}">설명</p>
+            </div>
+        </div>
+        ================================================
+        -->
+        <div class="relative overflow-hidden bg-slate-900">
+            <div class="swiper mySwiper h-[320px] md:h-[380px]">
+                <div class="swiper-wrapper">
+                    
+                    <!-- Slide 1: 이벤트 프로모션 -->
+                    <div class="swiper-slide relative bg-slate-900">
+                        <!-- 콘텐츠 영역: max-w-screen-xl로 중앙 정렬 -->
+                        <div class="max-w-screen-xl mx-auto px-4 h-full flex flex-col justify-center relative z-10">
+                            <div class="max-w-2xl">
+                                <!-- 뱃지 -->
+                                <span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded mb-4 inline-block tracking-wide">EVENT</span>
+                                <!-- 제목 -->
+                                <h1 class="text-3xl md:text-5xl text-white font-bold mb-4 leading-tight">
+                                    2026년,<br>당신의 성장을 응원합니다.
+                                </h1>
+                                <!-- 설명 -->
+                                <p class="text-gray-300 mb-8 text-base md:text-lg">
+                                    최고의 강사진과 함께하는 실전 중심의 커리큘럼.<br>
+                                    지금 시작하면 수강료 최대 30% 할인 혜택까지!
+                                </p>
+                                <!-- CTA 버튼 -->
+                                <button class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded transition-colors text-sm md:text-base">
+                                    강의 보러가기
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 장식용 배경 효과 -->
+                        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500 rounded-full opacity-10 translate-x-1/4 -translate-y-1/4 blur-3xl pointer-events-none"></div>
+                    </div>
+
+                    <!-- Slide 2: 신규 강의 -->
+                    <div class="swiper-slide relative bg-[#1e1b4b]">
+                        <div class="max-w-screen-xl mx-auto px-4 h-full flex flex-col justify-center relative z-10">
+                            <div class="max-w-2xl">
+                                <span class="bg-yellow-400 text-indigo-900 text-[11px] font-bold px-2 py-1 rounded mb-4 inline-block tracking-wide">NEW CLASS</span>
+                                <h1 class="text-3xl md:text-5xl text-white font-bold mb-4 leading-tight">
+                                    GPT-5와 함께하는<br>AI 앱 개발 마스터
+                                </h1>
+                                <p class="text-indigo-200 mb-8 text-base md:text-lg">
+                                    프롬프트 엔지니어링부터 API 연동까지.<br>
+                                    나만의 AI 서비스를 직접 만들어보세요.
+                                </p>
+                                <button class="bg-white hover:bg-gray-100 text-indigo-900 font-bold py-3 px-8 rounded transition-colors text-sm md:text-base">
+                                    자세히 보기
+                                </button>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 right-20 w-96 h-96 bg-pink-500 rounded-full opacity-20 blur-[100px] pointer-events-none"></div>
+                    </div>
+
+                    <!-- Slide 3: 가이드북 프로모션 -->
+                    <div class="swiper-slide relative bg-gray-800">
+                        <div class="max-w-screen-xl mx-auto px-4 h-full flex flex-col justify-center relative z-10">
+                            <div class="max-w-2xl">
+                                <span class="bg-blue-500 text-white text-[11px] font-bold px-2 py-1 rounded mb-4 inline-block tracking-wide">CAREER</span>
+                                <h1 class="text-3xl md:text-5xl text-white font-bold mb-4 leading-tight">
+                                    비전공자를 위한<br>IT 취업 가이드북
+                                </h1>
+                                <p class="text-gray-400 mb-8 text-base md:text-lg">
+                                    현직자 100명이 말하는 리얼한 취업 성공기.<br>
+                                    지금 가입하고 무료로 받아보세요.
+                                </p>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded transition-colors text-sm md:text-base">
+                                    가이드북 받기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- 페이지네이션 (하단 점) -->
+                <div class="swiper-pagination"></div>
+                <!-- 좌우 화살표 (데스크톱만 표시) -->
+                <div class="swiper-button-next hidden md:block"></div>
+                <div class="swiper-button-prev hidden md:block"></div>
+            </div>
+        </div>
+
+        <!-- 
+        ================================================
+        COURSE SECTION (강의 목록 섹션)
+        ================================================
+        역할: 강의 검색, 필터링, 표시
+        
+        구성 요소:
+        1. Filter Section: 카테고리 칩 필터
+        2. Sort & Count: 강의 개수 및 정렬 옵션
+        3. Course Grid: 강의 카드 그리드 레이아웃
+        4. Pagination: 페이지네이션
+        
+        기술적 특징:
+        - 반응형 그리드: 화면 크기에 따라 1~5열 조정
+        - Hover 효과: 마우스 오버 시 상세 정보 팝업
+        - Infinite Scroll: 첫 페이지에서 자동 로딩
+        - 동적 필터링: JavaScript로 실시간 검색/필터
+        
+        [Spring + MyBatis 연동 시]
+        
+        1. Controller (MainController.java):
+        ```java
+        @Controller
+        public class MainController {
+            @Autowired
+            private CourseService courseService;
+            
+            @GetMapping("/")
+            public String mainPage(
+                @RequestParam(required = false) String category,
+                @RequestParam(required = false) String search,
+                @RequestParam(defaultValue = "1") int page,
+                Model model
+            ) {
+                // 강의 목록 조회
+                List<CourseVO> courses = courseService.selectCourseList(category, search, page);
+                // 카테고리 목록 조회
+                List<CategoryVO> categories = courseService.selectCategoryList();
+                
+                model.addAttribute("courses", courses);
+                model.addAttribute("categories", categories);
+                model.addAttribute("currentCategory", category);
+                return "common/main/index";
+            }
+        }
+        ```
+        
+        2. Service (CourseService.java):
+        ```java
+        @Service
+        public class CourseService {
+            @Autowired
+            private CourseMapper courseMapper;
+            
+            public List<CourseVO> selectCourseList(String category, String search, int page) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("category", category);
+                params.put("search", search);
+                params.put("startRow", (page - 1) * 20);
+                params.put("endRow", page * 20);
+                return courseMapper.selectCourseList(params);
+            }
+            
+            public List<CategoryVO> selectCategoryList() {
+                return courseMapper.selectCategoryList();
+            }
+        }
+        ```
+        
+        3. Mapper (CourseMapper.xml):
+        ```xml
+        <select id="selectCourseList" resultType="CourseVO">
+            SELECT 
+                course_id, title, instructor, price, original_price,
+                rating, review_count, category, level, description
+            FROM (
+                SELECT ROWNUM rnum, c.*
+                FROM (
+                    SELECT * FROM courses
+                    <where>
+                        <if test="category != null and category != 'all'">
+                            AND category = #{category}
+                        </if>
+                        <if test="search != null">
+                            AND (title LIKE '%'||#{search}||'%' 
+                                 OR instructor LIKE '%'||#{search}||'%')
+                        </if>
+                    </where>
+                    ORDER BY created_at DESC
+                ) c
+                WHERE ROWNUM <= #{endRow}
+            )
+            WHERE rnum > #{startRow}
+        </select>
+        ```
+        
+        4. Thymeleaf 템플릿:
+        ```html
+        <!-- 카테고리 필터 -->
+        <div th:each="cat : ${categories}">
+            <button th:text="${cat.name}" 
+                    th:classappend="${currentCategory == cat.id} ? 'active' : ''">
+            </button>
+        </div>
+        
+        <!-- 강의 목록 -->
+        <div th:each="course : ${courses}">
+            <h3 th:text="${course.title}">강의 제목</h3>
+            <p th:text="${course.instructor}">강사명</p>
+            <span th:text="${#numbers.formatInteger(course.price, 0, 'COMMA')}">가격</span>
+        </div>
+        ```
+        ================================================
+        -->
+        <div class="max-w-screen-xl mx-auto px-4 py-12">
+            
+            <!-- Filter Section: 제목 및 카테고리 필터 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-1">전체 강의</h2>
+                    <p class="text-gray-500 text-sm">성장을 위한 최고의 강의들을 만나보세요.</p>
+                </div>
+                
+                <!-- Category Chips: JavaScript로 동적 생성 -->
+                <!-- [Spring 연동] Thymeleaf로 카테고리 목록 렌더링 -->
+                <div id="category-container" class="flex flex-wrap gap-2">
+                    <!-- Javascript will populate this -->
+                </div>
+            </div>
+
+            <!-- Sort & Count: 정렬 옵션 및 강의 개수 -->
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-800 text-sm">총 <span id="course-count" class="text-emerald-600">0</span>개</span>
+                </div>
+                <!-- 정렬 버튼 -->
+                <!-- [Spring 연동] 정렬 옵션 클릭 시 서버로 전송 -->
+                <div class="flex gap-4 text-sm text-gray-500">
+                    <button class="font-bold text-gray-900">추천순</button>
+                    <button class="hover:text-gray-900 transition-colors">최신순</button>
+                    <button class="hover:text-gray-900 transition-colors">평점순</button>
+                </div>
+            </div>
+
+            <!-- Course Grid: 강의 카드 그리드 -->
+            <!-- 
+            그리드 레이아웃:
+            - mobile (< 640px): 1열
+            - sm (≥ 640px): 2열
+            - md (≥ 768px): 3열
+            - lg (≥ 1024px): 4열
+            - xl (≥ 1280px): 5열
+            
+            overflow-visible: 호버 카드가 그리드 밖으로 나올 수 있도록 허용
+            -->
+            <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10 min-h-[400px]">
+                <!-- Javascript will populate this -->
+                <!-- [Spring 연동] Thymeleaf로 강의 목록 렌더링 -->
+            </div>
+            
+            <!-- Sentinel: Intersection Observer용 감시 요소 -->
+            <!-- 첫 페이지에서 스크롤 시 추가 데이터 자동 로딩 -->
+            <div id="scroll-sentinel" class="w-full py-12 flex justify-center items-center hidden opacity-0 transition-opacity duration-300">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-emerald-600"></div>
+            </div>
+
+            <!-- Pagination Container: 페이지 버튼 -->
+            <div id="pagination-container" class="flex justify-center items-center gap-2 mt-16 hidden">
+                <!-- Javascript will populate this -->
+            </div>
+            
+            <!-- No Results: 검색 결과 없음 메시지 -->
+            <div id="no-results" class="hidden text-center py-24 bg-white rounded-xl border border-gray-200 mt-6 shadow-sm">
+                <div class="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="search" class="text-gray-400 w-8 h-8"></i>
+                </div>
+                <p class="text-gray-900 font-bold mb-1">검색 결과가 없습니다.</p>
+                <p class="text-gray-500 text-sm mb-6">다른 키워드로 검색해보거나 필터를 변경해보세요.</p>
+                <button id="reset-search-btn" class="text-white bg-emerald-600 hover:bg-emerald-700 px-6 py-2 rounded-lg font-bold text-sm transition-colors">
+                    전체 강의 보기
+                </button>
+            </div>
+        </div>
+
+        <!-- 
+        ================================================
+        COMMUNITY SECTION (커뮤니티 섹션)
+        ================================================
+        역할: 인기 아티클 및 블로그 콘텐츠 소개
+        
+        특징:
+        - Full Width 배경 (회색)
+        - 3열 그리드 레이아웃
+        - 카테고리 뱃지
+        - 호버 효과
+        
+        [Spring + MyBatis 연동 시]
+        아티클 데이터를 DB에서 가져옴:
+        
+        Controller:
+        @GetMapping("/")
+        public String mainPage(Model model) {
+            List<ArticleVO> articles = articleService.selectPopularArticles(3);
+            model.addAttribute("articles", articles);
+            return "common/main/index";
+        }
+        
+        Thymeleaf 템플릿:
+        <div th:each="article : ${articles}" class="bg-white p-6 rounded-xl">
+            <span th:text="${article.category}">카테고리</span>
+            <h4 th:text="${article.title}">제목</h4>
+            <p th:text="${article.summary}">요약</p>
+        </div>
+        ================================================
+        -->
+        <div class="bg-gray-100 py-16 mt-12 border-t border-gray-200">
+            <div class="max-w-screen-xl mx-auto px-4">
+                <!-- 섹션 헤더 -->
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900">읽어보면 좋은 글</h2>
+                        <p class="text-gray-500">인런 커뮤니티에서 가장 인기 있는 아티클입니다.</p>
+                    </div>
+                    <!-- [Spring 연동] th:href="@{/community}" -->
+                    <a href="#" class="text-emerald-600 font-bold text-sm hover:underline mt-4 md:mt-0 flex items-center gap-1">
+                        더보기 <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+                
+                <!-- 아티클 그리드: 3열 -->
+                <!-- [Spring 연동] th:each로 아티클 목록 반복 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- 아티클 카드 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded mb-3 inline-block">커리어</span>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors">2026년 개발자 취업 트렌드 완벽 분석</h4>
+                        <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed">올해 기업들이 가장 주목하는 기술 스택은 무엇일까요? 현직 채용 담당자가 말하는...</p>
+                    </div>
+                    <!-- 아티클 카드 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group">
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded mb-3 inline-block">기술</span>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3 group-hover:text-indigo-600 transition-colors">클라우드 네이티브 환경 구축 가이드</h4>
+                        <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed">마이크로서비스 아키텍처로의 전환을 고민하고 계신가요? 실제 사례를 통해...</p>
+                    </div>
+                    <!-- 아티클 카드 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded mb-3 inline-block">인터뷰</span>
+                        <h4 class="font-bold text-lg text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">비전공자에서 네카라쿠배 개발자가 되기까지</h4>
+                        <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed">3년차 백엔드 개발자의 솔직한 이직 성공기와 학습 노하우를 공개합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 
+    ================================================
+    FOOTER (푸터)
+    ================================================
+    역할: 사이트 정보, 링크, 법적 고지사항
+    
+    구성 요소:
+    - 회사 소개 및 소셜 미디어 링크
+    - 4개 카테고리 링크 (인런 소개, 고객 지원, 크리에이터, 법적 정보)
+    - 저작권 정보
+    
+    [Spring + MyBatis 연동 시]
+    링크는 th:href를 사용하여 동적으로 생성
+    ================================================
+    -->
+    <footer class="bg-white border-t border-gray-200 py-12 text-sm text-gray-500">
+        <div class="max-w-screen-xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <a href="#" class="flex items-center gap-2 mb-6">
+                        <i data-lucide="book-open" class="text-emerald-600 w-6 h-6"></i>
+                        <span class="text-xl font-bold text-gray-900">InLearn</span>
+                    </a>
+                    <p class="leading-relaxed mb-4">
+                        우리는 모두의 성장을 믿습니다.<br>
+                        지식의 공유를 통해 더 나은 세상을 만들어갑니다.
+                    </p>
+                    <div class="flex gap-4 mt-6">
+                        <a href="#" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><i data-lucide="youtube" class="w-4 h-4 text-gray-600"></i></a>
+                        <a href="#" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><i data-lucide="instagram" class="w-4 h-4 text-gray-600"></i></a>
+                        <a href="#" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><i data-lucide="facebook" class="w-4 h-4 text-gray-600"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="font-bold text-gray-900 mb-6 text-base">인런 소개</h5>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">인런 문화</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">채용 공고</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">파트너 안내</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold text-gray-900 mb-6 text-base">고객 지원</h5>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">자주 묻는 질문</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">수강신청 문의</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">기업 교육 문의</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold text-gray-900 mb-6 text-base">크리에이터</h5>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">지식공유자 지원</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">강사 가이드</a></li>
+                        <li><a href="#" class="hover:text-emerald-600 transition-colors">스튜디오 대관</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>© 2026 InLearn Inc. All Rights Reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-gray-900 transition-colors">이용약관</a>
+                    <a href="#" class="font-bold text-gray-900 hover:text-emerald-600 transition-colors">개인정보처리방침</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 
+    ================================================
+    JAVASCRIPT LOGIC (자바스크립트 로직)
+    ================================================
+    
+    [전체 구조]
+    1. Data: 카테고리 및 강의 데이터 정의
+    2. State: 애플리케이션 상태 관리
+    3. DOM Elements: DOM 요소 참조
+    4. Helper Functions: 유틸리티 함수
+    5. Render Functions: 렌더링 함수
+    6. Event Handlers: 이벤트 처리
+    7. Initialization: 초기화
+    
+    [Spring + MyBatis 연동 시]
+    JavaScript의 하드코딩된 데이터를 서버에서 전달받은 데이터로 교체:
+    
+    1. Thymeleaf Inline Script 사용:
+    ```html
+    <script th:inline="javascript">
+        const CATEGORIES = [[${categories}]];
+        const COURSES = [[${courses}]];
+    </script>
+    ```
+    
+    2. REST API 사용:
+    ```javascript
+    async function fetchCourses(category, search) {
+        const response = await fetch(`/api/courses?category=${category}&search=${search}`);
+        const data = await response.json();
+        return data;
+    }
+    ```
+    ================================================
+    -->
+    <script>
+        // ==================== 데이터 정의 ====================
+        
+        /**
+         * CATEGORIES: 카테고리 목록
+         * - id: 카테고리 고유 ID
+         * - name: 표시될 카테고리 이름
+         * - icon: Lucide 아이콘 이름
+         * 
+         * [Spring 연동] DB 테이블: categories
+         * SELECT category_id, category_name, icon_name FROM categories WHERE is_active = 1
+         */
+        const CATEGORIES = [
+            { id: 'all', name: '전체', icon: null },
+            { id: 'dev', name: '개발 · 프로그래밍', icon: 'code' },
+            { id: 'security', name: '보안 · 네트워크', icon: 'shield' },
+            { id: 'data', name: '데이터 사이언스', icon: 'database' },
+            { id: 'mobile', name: '모바일', icon: 'smartphone' },
+            { id: 'game', name: '게임 개발', icon: 'monitor' },
+        ];
+
+        /**
+         * BASE_COURSES: 기본 강의 데이터 (8개)
+         * 더미 데이터 생성을 위한 베이스 데이터
+         * 
+         * [Spring 연동] DB 테이블: courses
+         * SELECT course_id, title, instructor_name, price, original_price, 
+         *        rating, review_count, category_id, level, description
+         * FROM courses 
+         * WHERE is_active = 1
+         * ORDER BY created_at DESC
+         */
+        const BASE_COURSES = [
+            { 
+                id: 1, 
+                title: "[풀스택] 스프링 부트와 리액트로 만드는 쇼핑몰", 
+                instructor: "김코딩", 
+                price: 121000, 
+                originalPrice: 150000, 
+                rating: 4.9, 
+                reviewCount: 1240, 
+                imageColor: "bg-emerald-100", 
+                category: "dev", 
+                tags: ["Best", "할인중"], 
+                icon: "code",
+                level: "중급",
+                description: "쇼핑몰 프로젝트를 통해 백엔드(Spring Boot)와 프론트엔드(React)의 연동 과정을 완벽하게 마스터합니다.",
+                goals: ["REST API 설계 및 구현", "React 상태 관리 (Redux)", "JWT 인증/인가 처리", "결제 모듈 연동"]
+            },
+            { 
+                id: 2, 
+                title: "파이썬 입문부터 데이터 분석까지 한 번에", 
+                instructor: "이데이터", 
+                price: 55000, 
+                originalPrice: 55000, 
+                rating: 4.8, 
+                reviewCount: 850, 
+                imageColor: "bg-blue-100", 
+                category: "data", 
+                tags: ["입문", "New"], 
+                icon: "code",
+                level: "입문",
+                description: "프로그래밍 경험이 없어도 괜찮습니다. 파이썬 기초부터 판다스(Pandas)를 활용한 데이터 분석까지 알려드립니다.",
+                goals: ["파이썬 기초 문법", "웹 크롤링 실습", "Pandas & Matplotlib 활용", "공공데이터 분석 프로젝트"]
+            },
+            { 
+                id: 3, 
+                title: "화이트 해커가 되는 웹 해킹 입문", 
+                instructor: "박보안", 
+                price: 88000, 
+                originalPrice: 110000, 
+                rating: 4.7, 
+                reviewCount: 430, 
+                imageColor: "bg-slate-800", 
+                category: "security", 
+                tags: ["Best"], 
+                icon: "shield",
+                level: "초급",
+                description: "웹 애플리케이션의 취약점을 찾고 보안하는 방법을 배웁니다. 실제 해킹 사례를 통해 방어 기법을 익히세요.",
+                goals: ["OWASP Top 10 이해", "SQL Injection 실습", "XSS 공격과 방어", "모의해킹 툴 활용법"]
+            },
+            { 
+                id: 4, 
+                title: "Flutter로 만드는 나만의 배달 앱", 
+                instructor: "최모바일", 
+                price: 77000, 
+                originalPrice: 99000, 
+                rating: 4.9, 
+                reviewCount: 210, 
+                imageColor: "bg-cyan-100", 
+                category: "mobile", 
+                tags: ["프로젝트"], 
+                icon: "code",
+                level: "중급",
+                description: "하나의 코드로 iOS와 Android 앱을 동시에! 플러터를 이용해 실제 서비스 수준의 배달 앱을 만들어봅니다.",
+                goals: ["Dart 언어 핵심 문법", "Flutter 위젯 활용", "Google Maps 연동", "Firebase 백엔드 활용"]
+            },
+            { 
+                id: 5, 
+                title: "유니티(Unity) 3D RPG 게임 만들기", 
+                instructor: "정게임", 
+                price: 132000, 
+                originalPrice: 165000, 
+                rating: 4.6, 
+                reviewCount: 560, 
+                imageColor: "bg-purple-100", 
+                category: "game", 
+                tags: ["할인중"], 
+                icon: "monitor",
+                level: "중급",
+                description: "유니티 엔진의 기능을 활용해 몬스터 사냥, 레벨업, 아이템 파밍이 가능한 3D RPG 게임을 제작합니다.",
+                goals: ["Unity 3D 물리 엔진", "캐릭터 애니메이션 제어", "적 AI 구현 (FSM)", "게임 UI 및 인벤토리"]
+            },
+            { 
+                id: 6, 
+                title: "자바스크립트 완벽 가이드 (ES6+)", 
+                instructor: "프론트엔드 장인", 
+                price: 49500, 
+                originalPrice: 49500, 
+                rating: 4.8, 
+                reviewCount: 3200, 
+                imageColor: "bg-yellow-100", 
+                category: "dev", 
+                tags: ["Best", "스테디셀러"], 
+                icon: "code",
+                level: "초급",
+                description: "모던 웹 개발의 필수 언어인 자바스크립트의 동작 원리부터 최신 문법까지 깊이 있게 다룹니다.",
+                goals: ["실행 컨텍스트와 클로저", "비동기 프로그래밍 (Async/Await)", "ES6+ 최신 문법", "DOM 조작 및 이벤트"]
+            },
+            { 
+                id: 7, 
+                title: "딥러닝, 개념부터 실전 프로젝트까지", 
+                instructor: "AI 연구소", 
+                price: 99000, 
+                originalPrice: 120000, 
+                rating: 4.5, 
+                reviewCount: 150, 
+                imageColor: "bg-indigo-100", 
+                category: "data", 
+                tags: ["New"], 
+                icon: "code",
+                level: "고급",
+                description: "수학적 기초부터 시작해 텐서플로우(TensorFlow)를 활용한 이미지 인식 및 자연어 처리 모델을 구축합니다.",
+                goals: ["신경망 기초 수학", "CNN 이미지 분류", "RNN/LSTM 자연어 처리", "모델 최적화 및 배포"]
+            },
+            { 
+                id: 8, 
+                title: "리눅스 커널 심층 분석", 
+                instructor: "시스템 마스터", 
+                price: 66000, 
+                originalPrice: 66000, 
+                rating: 4.9, 
+                reviewCount: 89, 
+                imageColor: "bg-gray-200", 
+                category: "dev", 
+                tags: [], 
+                icon: "code",
+                level: "고급",
+                description: "운영체제의 핵심인 리눅스 커널 소스 코드를 분석하고, 시스템 프로그래밍의 깊은 원리를 이해합니다.",
+                goals: ["커널 아키텍처 이해", "프로세스 스케줄링", "메모리 관리 기법", "디바이스 드라이버 제작"]
+            }
+        ];
+
+        /**
+         * COURSES: 전체 강의 목록 (60개)
+         * 8개의 BASE_COURSES를 기반으로 더미 데이터 생성
+         * 실제 프로젝트에서는 서버에서 받아온 데이터로 대체
+         */
+        let COURSES = [...BASE_COURSES];
+        // 반복문으로 더미 데이터 생성 (9번부터 60번까지)
+        for (let i = 9; i <= 60; i++) { 
+            const randomBase = BASE_COURSES[Math.floor(Math.random() * BASE_COURSES.length)];
+            COURSES.push({
+                ...randomBase,
+                id: i,
+                title: `${randomBase.title} - 심화과정 ${i}`,
+                reviewCount: Math.floor(Math.random() * 1000),
+                rating: (4 + Math.random()).toFixed(1)
+            });
+        }
+
+        // ==================== 상태 관리 ====================
+        /**
+         * state: 애플리케이션 전역 상태
+         * - activeCategory: 현재 선택된 카테고리
+         * - searchQuery: 검색어
+         * - cartCount: 장바구니 개수
+         * - currentPage: 현재 페이지 번호
+         * - page1Limit: 첫 페이지 최대 표시 개수
+         * - page1Current: 첫 페이지 현재 표시 개수
+         * - pageSize: 페이지당 항목 수
+         */
+        let state = {
+            activeCategory: 'all',
+            searchQuery: '',
+            cartCount: 0,
+            currentPage: 1,      
+            page1Limit: 20,      
+            page1Current: 10,     
+            pageSize: 20         
+        };
+
+        // ==================== DOM 요소 참조 ====================
+        /**
+         * DOM 요소들을 미리 참조하여 성능 최적화
+         */
+        const categoryContainer = document.getElementById('category-container');
+        const courseGrid = document.getElementById('course-grid');
+        const scrollSentinel = document.getElementById('scroll-sentinel');
+        const paginationContainer = document.getElementById('pagination-container');
+        const noResults = document.getElementById('no-results');
+        const searchInput = document.getElementById('search-input');
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        const courseCount = document.getElementById('course-count');
+        const cartBadge = document.getElementById('cart-badge');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const resetSearchBtn = document.getElementById('reset-search-btn');
+
+        // ==================== 유틸리티 함수 ====================
+        /**
+         * formatPrice: 숫자를 천 단위 콤마로 포맷
+         * @param {number} price - 가격
+         * @returns {string} 포맷된 가격 문자열
+         */
+        const formatPrice = (price) => price.toLocaleString();
+        
+        /**
+         * getStarsHTML: 별점을 HTML로 변환
+         * @param {number} rating - 평점 (0-5)
+         * @returns {string} 별점 HTML
+         */
+        const getStarsHTML = (rating) => {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                const fill = i < Math.floor(rating) ? 'currentColor' : 'none';
+                const color = 'text-yellow-400';
+                stars += `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star ${color}"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+            }
+            return stars;
+        };
+
+        // ==================== 렌더링 함수 ====================
+        /**
+         * renderCategories: 카테고리 칩 렌더링
+         * 현재 선택된 카테고리에 active 스타일 적용
+         */
+        const renderCategories = () => {
+            categoryContainer.innerHTML = '';
+            // 카테고리 배열을 반복하여 버튼 생성
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                const isActive = state.activeCategory === cat.id;
+                
+                const baseClasses = "flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 border select-none";
+                const activeClasses = "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-200";
+                const inactiveClasses = "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900";
+                
+                btn.className = `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`;
+                const iconHtml = cat.icon ? `<i data-lucide="${cat.icon}" class="w-4 h-4"></i>` : '';
+                btn.innerHTML = `${iconHtml}${cat.name}`;
+                
+                // 클릭 이벤트: 카테고리 변경 및 재렌더링
+                btn.addEventListener('click', () => {
+                    state.activeCategory = cat.id;
+                    state.currentPage = 1;
+                    state.page1Current = 10; 
+                    renderCategories(); 
+                    renderCourses(true);
+                });
+                categoryContainer.appendChild(btn);
+            });
+            lucide.createIcons(); // 아이콘 재생성
+        };
+
+        /**
+         * renderCourses: 강의 카드 렌더링
+         * @param {boolean} reset - true면 그리드 초기화 및 스크롤 이동
+         * 
+         * 동작:
+         * 1. 카테고리 및 검색어로 필터링
+         * 2. 페이지네이션 처리
+         * 3. 강의 카드 HTML 생성
+         * 4. DOM에 삽입
+         */
+        const renderCourses = (reset = false) => {
+            let filtered = COURSES;
+            
+            // 1. 카테고리 필터링
+            if (state.activeCategory !== 'all') {
+                filtered = filtered.filter(c => c.category === state.activeCategory);
+            }
+            
+            // 2. 검색어 필터링
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(c => 
+                    c.title.toLowerCase().includes(query) || 
+                    c.instructor.toLowerCase().includes(query)
+                );
+            }
+
+            // 강의 개수 업데이트
+            courseCount.textContent = filtered.length;
+
+            // reset 옵션: 그리드 초기화 및 스크롤 이동
+            if (reset) {
+                courseGrid.innerHTML = '';
+                if (state.currentPage === 1) {
+                    window.scrollTo({ top: 400, behavior: 'smooth' });
+                }
+            }
+
+            // 3. 페이지네이션 처리
+            let visibleData = [];
+            let showSentinel = false;
+            let showPagination = false;
+
+            if (state.currentPage === 1) {
+                // 첫 페이지: Infinite Scroll
+                visibleData = filtered.slice(0, state.page1Current);
+                if (state.page1Current < state.page1Limit && state.page1Current < filtered.length) {
+                    showSentinel = true; // 더 로드할 데이터가 있으면 센티널 표시
+                } else if (filtered.length > state.page1Limit) {
+                    showPagination = true; // 페이지네이션 표시
+                }
+            } else {
+                // 이후 페이지: 일반 페이지네이션
+                const startIndex = (state.currentPage - 1) * state.pageSize;
+                const endIndex = startIndex + state.pageSize;
+                visibleData = filtered.slice(startIndex, endIndex);
+                showPagination = true;
+            }
+
+            courseGrid.innerHTML = '';
+            
+            // 4. 검색 결과 없음 처리
+            if (filtered.length === 0) {
+                courseGrid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                scrollSentinel.classList.add('hidden');
+                paginationContainer.classList.add('hidden');
+            } else {
+                courseGrid.classList.remove('hidden');
+                noResults.classList.add('hidden');
+
+                // 5. 강의 카드 렌더링 (반복문)
+                visibleData.forEach(course => {
+                    // 가격 HTML
+                    const originalPriceHTML = course.price < course.originalPrice 
+                        ? `<span class="block text-xs text-gray-400 line-through">₩${formatPrice(course.originalPrice)}</span>` 
+                        : '';
+                    const priceText = course.price === 0 ? '무료' : `₩${formatPrice(course.price)}`;
+                    const priceColor = course.price === 0 ? 'text-emerald-600' : 'text-gray-900';
+                    
+                    // 태그 HTML (반복문)
+                    const tagsHTML = course.tags.map(tag => {
+                        let tagClass = 'bg-gray-100 text-gray-600';
+                        if (tag === 'Best') tagClass = 'bg-emerald-100 text-emerald-700';
+                        if (tag === 'New') tagClass = 'bg-yellow-100 text-yellow-700';
+                        return `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold ${tagClass}">${tag}</span>`;
+                    }).join('');
+                    
+                    // 학습 목표 HTML (반복문)
+                    const goalsHTML = course.goals.slice(0, 3).map(goal => 
+                        `<li class="flex items-start gap-2 text-xs text-gray-600">
+                            <i data-lucide="check" class="w-3 h-3 text-emerald-500 mt-0.5 shrink-0"></i>
+                            <span class="line-clamp-1">${goal}</span>
+                        </li>`
+                    ).join('');
+
+                    // 강의 카드 HTML
+                    const cardHTML = `
+                        <div class="relative group hover:z-50 h-full">
+                            <!-- 기본 카드 -->
+                            <div class="h-full bg-white rounded-xl overflow-hidden border border-gray-100 flex flex-col">
+                                <div class="h-[160px] w-full ${course.imageColor} flex items-center justify-center relative overflow-hidden">
+                                    <i data-lucide="${course.imageColor === 'bg-slate-800' ? 'shield' : 'code'}" 
+                                    class="${course.imageColor === 'bg-slate-800' ? 'text-white' : 'text-gray-900'} opacity-20 w-20 h-20"></i>
+                                </div>
+                                <div class="p-4 flex flex-col flex-1">
+                                    <h3 class="text-gray-900 font-bold text-base mb-1 line-clamp-2 min-h-[3rem] leading-snug">${course.title}</h3>
+                                    <p class="text-gray-500 text-xs mb-3">${course.instructor}</p>
+                                    <div class="flex items-center gap-1 mb-3">
+                                        <div class="flex text-yellow-400 items-center gap-0.5">${getStarsHTML(course.rating)}</div>
+                                        <span class="text-xs font-bold text-gray-700">(${course.reviewCount})</span>
+                                    </div>
+                                    <div class="mt-auto pt-3 border-t border-gray-100">
+                                        <span class="font-bold text-lg ${priceColor}">${priceText}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 호버 시 상세 정보 카드 -->
+                            <div class="hidden group-hover:block absolute top-[-10px] left-[-10px] w-[calc(100%+20px)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 animate-fade-in overflow-hidden">
+                                <div class="p-5 flex flex-col gap-3">
+                                    <div>
+                                        <h3 class="text-gray-900 font-bold text-lg leading-snug mb-1">${course.title}</h3>
+                                        <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                                            <span class="px-2 py-0.5 bg-gray-100 rounded font-bold text-gray-700">${course.level}</span>
+                                            <span>${course.category === 'dev' ? '개발 · 프로그래밍' : 'IT · 데이터'}</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                        ${course.description}
+                                    </p>
+
+                                    <div class="space-y-1 bg-gray-50 p-3 rounded-lg">
+                                        <span class="text-xs font-bold text-gray-800 block mb-1">이런 걸 배워요!</span>
+                                        <ul class="space-y-1">
+                                            ${goalsHTML}
+                                        </ul>
+                                    </div>
+
+                                    <div class="pt-3 border-t border-gray-100 flex items-center justify-between mt-1">
+                                        <div>
+                                            ${originalPriceHTML}
+                                            <span class="font-bold text-xl ${priceColor}">${priceText}</span>
+                                        </div>
+                                        <button class="add-to-cart-btn p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-sm" data-id="${course.id}">
+                                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    courseGrid.insertAdjacentHTML('beforeend', cardHTML);
+                });
+
+                // 장바구니 버튼 이벤트 리스너
+                document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        addToCart();
+                    });
+                });
+
+                // 센티널 및 페이지네이션 표시
+                if (showSentinel) {
+                    scrollSentinel.classList.remove('hidden');
+                    scrollSentinel.classList.remove('opacity-0');
+                    paginationContainer.classList.add('hidden');
+                } else {
+                    scrollSentinel.classList.add('hidden');
+                    if (showPagination) {
+                        paginationContainer.classList.remove('hidden');
+                        renderPagination(Math.ceil(filtered.length / state.pageSize));
+                    } else {
+                        paginationContainer.classList.add('hidden');
+                    }
+                }
+            }
+            lucide.createIcons(); // 아이콘 재생성
+        };
+
+        /**
+         * renderPagination: 페이지네이션 버튼 렌더링
+         * @param {number} totalPages - 전체 페이지 수
+         */
+        const renderPagination = (totalPages) => {
+            paginationContainer.innerHTML = '';
+            
+            // 이전 버튼
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = `<i data-lucide="chevron-left" class="w-4 h-4"></i>`;
+            prevBtn.className = `p-2 rounded-lg border ${state.currentPage === 1 ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`;
+            prevBtn.disabled = state.currentPage === 1;
+            prevBtn.onclick = () => {
+                if (state.currentPage > 1) {
+                    state.currentPage--;
+                    if (state.currentPage === 1) state.page1Current = state.page1Limit; 
+                    renderCourses(true);
+                }
+            };
+            paginationContainer.appendChild(prevBtn);
+
+            // 페이지 번호 버튼 (반복문)
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `w-9 h-9 rounded-lg text-sm font-bold border transition-colors ${
+                    state.currentPage === i 
+                    ? 'bg-gray-900 text-white border-gray-900' 
+                    : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                }`;
+                pageBtn.onclick = () => {
+                    state.currentPage = i;
+                    if (i === 1) state.page1Current = state.page1Limit; 
+                    renderCourses(true);
+                };
+                paginationContainer.appendChild(pageBtn);
+            }
+
+            // 다음 버튼
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = `<i data-lucide="chevron-right" class="w-4 h-4"></i>`;
+            nextBtn.className = `p-2 rounded-lg border ${state.currentPage === totalPages ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`;
+            nextBtn.disabled = state.currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (state.currentPage < totalPages) {
+                    state.currentPage++;
+                    renderCourses(true);
+                }
+            };
+            paginationContainer.appendChild(nextBtn);
+            
+            lucide.createIcons();
+        };
+
+        /**
+         * setupIntersectionObserver: Infinite Scroll 구현
+         * scroll-sentinel 요소가 뷰포트에 보이면 추가 데이터 로드
+         */
+        const setupIntersectionObserver = () => {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && state.currentPage === 1 && state.page1Current < state.page1Limit) {
+                    setTimeout(() => {
+                        state.page1Current = Math.min(state.page1Current + 10, state.page1Limit); 
+                        renderCourses(false); // reset하지 않고 추가만
+                    }, 500);
+                }
+            }, { threshold: 0.1 });
+            observer.observe(scrollSentinel);
+        };
+
+        /**
+         * addToCart: 장바구니에 아이템 추가
+         * 장바구니 뱃지 업데이트 및 애니메이션
+         * 
+         * [Spring 연동] 
+         * AJAX 요청으로 서버에 장바구니 정보 전송
+         * fetch('/api/cart/add', { method: 'POST', body: JSON.stringify({courseId}) })
+         */
+        const addToCart = () => {
+            state.cartCount++;
+            cartBadge.textContent = state.cartCount;
+            if (state.cartCount > 0) {
+                cartBadge.classList.remove('hidden');
+                cartBadge.classList.add('flex');
+                
+                // 애니메이션: 크기 확대 후 축소
+                cartBadge.classList.add('scale-125');
+                setTimeout(() => cartBadge.classList.remove('scale-125'), 200);
+            }
+        };
+
+        // ==================== 이벤트 핸들러 ====================
+        /**
+         * handleSearch: 검색 입력 처리
+         * @param {Event} e - 입력 이벤트
+         */
+        const handleSearch = (e) => {
+            state.searchQuery = e.target.value;
+            searchInput.value = state.searchQuery;
+            mobileSearchInput.value = state.searchQuery;
+            state.currentPage = 1;
+            state.page1Current = 10;
+            renderCourses(true);
+        };
+
+        // 검색 입력 이벤트 리스너
+        searchInput.addEventListener('input', handleSearch);
+        mobileSearchInput.addEventListener('input', handleSearch);
+        
+        // 모바일 메뉴 토글
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenu.classList.contains('hidden') ? 'menu' : 'x';
+            mobileMenuBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
+            lucide.createIcons();
+        });
+        
+        // 검색 초기화 버튼
+        resetSearchBtn.addEventListener('click', () => {
+            state.searchQuery = '';
+            state.activeCategory = 'all';
+            searchInput.value = '';
+            mobileSearchInput.value = '';
+            state.currentPage = 1;
+            state.page1Current = 10;
+            renderCategories();
+            renderCourses(true);
+        });
+
+        // ==================== 초기화 ====================
+        /**
+         * DOMContentLoaded: 페이지 로드 완료 시 실행
+         * 1. 카테고리 렌더링
+         * 2. 강의 목록 렌더링
+         * 3. Infinite Scroll 설정
+         * 4. Swiper 초기화
+         * 5. 아이콘 초기화
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCategories();
+            renderCourses();
+            setupIntersectionObserver();
+            
+            // Swiper 슬라이더 초기화
+            const swiper = new Swiper(".mySwiper", {
+                loop: true,                    // 무한 반복
+                effect: 'fade',                // 페이드 효과
+                fadeEffect: { crossFade: true },
+                autoplay: {                    // 자동 재생
+                    delay: 4000,
+                    disableOnInteraction: false
+                },
+                pagination: {                  // 페이지네이션
+                    el: ".swiper-pagination",
+                    clickable: true
+                },
+                navigation: {                  // 화살표 네비게이션
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev"
+                },
+            });
+            
+            lucide.createIcons(); // Lucide 아이콘 초기화
+        });
+    </script>
+</body>
+</html>
