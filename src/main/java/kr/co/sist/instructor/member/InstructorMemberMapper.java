@@ -28,4 +28,22 @@ public interface InstructorMemberMapper {
      */
     public String selectId(String id) throws PersistenceException;
 
+    /**
+     * 이름 중복 확인
+     * 
+     * @param name 이름
+     * @return 이름 (없으면 null)
+     * @throws PersistenceException
+     */
+    public String selectName(String name) throws PersistenceException;
+
+    /**
+     * 전화번호 중복 확인
+     * 
+     * @param phone 전화번호
+     * @return 전화번호 (없으면 null)
+     * @throws PersistenceException
+     */
+    public String selectPhone(String phone) throws PersistenceException;
+
 }

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>강사 회원가입 - IntLearn</title>
+    <th:block th:replace="~{fragments/cdn :: cdn}" />
+    <style type="text/css">
+        #wrap {
+            margin: 0px auto;
+            width: 1000px;
+            min-height: 1000px;
+        }
+
+        #header {
+            height: 150px;
+        }
+
+        #container {
+            min-height: 750px;
+            display: flex;
+            justify-content: center;
+            padding: 30px 0;
+        }
+
+        #footer {
+            height: 100px;
+        }
+
+        /* 회원가입 폼 스타일 */
+        .join-box {
+            width: 500px;
+            padding: 40px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .join-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .join-box .form-group {
+            margin-bottom: 20px;
+        }
+
+        .join-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .join-box label span {
+            color: #e74c3c;
+        }
+
+        .join-box input[type="text"],
+        .join-box input[type="password"],
+        .join-box input[type="email"],
+        .join-box input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .join-box input:focus {
+            border-color: #4a90d9;
+            outline: none;
+        }
+
+        .join-box .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .join-box .input-group input {
+            flex: 1;
+        }
+
+        .join-box .btn-dup-check {
+            padding: 12px 15px;
+            background: #666;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .join-box .btn-dup-check:hover {
+            background: #555;
+        }
+
+        .join-box .btn-join {
+            width: 100%;
+            padding: 14px;
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .join-box .btn-join:hover {
+            background: #357abd;
+        }
+
+        .join-box .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .join-box .links a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .join-box .links a:hover {
+            color: #4a90d9;
+        }
+
+        .check-msg {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .check-msg.success {
+            color: #27ae60;
+        }
+
+        .check-msg.error {
+            color: #e74c3c;
+        }
+
+        /* ========== 선서 영역 스타일 ========== */
+        .oath-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .oath-section h4 {
+            color: #6b5ce7;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .oath-section .oath-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 14px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+
+        .oath-section .oath-text li {
+            list-style: none;
+            padding: 2px 0;
+        }
+
+        .oath-section .oath-text li::before {
+            content: '✔ ';
+            color: #6b5ce7;
+        }
+
+        .oath-input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .oath-input-area label {
+            font-size: 13px;
+            color: #666;
+            font-weight: normal !important;
+        }
+
+        .oath-input-area input[type="text"] {
+            border: 1.5px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .oath-input-area input[type="text"]:focus {
+            border-color: #6b5ce7;
+        }
+
+        .oath-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            // 아이디 중복 확인 (AJAX)
+            // 아이디 공백 체크 함수
+            function checkSpaceId(str) {
+                if (str.search(/\s/) != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            //비밀번호 공백 체크 함수
+            function checkSpacePassword(str) {
+                if (str.search(/\s/) != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            //이름 공백 체크 함수
+            function checkSpaceName(str) {
+                if (str.search(/\s/) != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            //전화번호 공백 체크 함수
+            function checkSpacePhone(str) {
+                if (str.search(/\s/) != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            // 비밀번호 일치 확인
+            $('#password, #passwordChk').on('keyup', function () {
+                var pw = $('#password').val();
+                var pwChk = $('#passwordChk').val();
+
+                if (pw == '' || pwChk == '') {
+                    $('#pwMsg').text('');
+                    return;
+                }
+                if (pw.length < 6) {
+                    $('#pwMsg').text('비밀번호는 6자 이상이어야 합니다.').removeClass('success').addClass('error');
+                    $('#password').focus();
+                    return false;
+                }
+                if (checkSpacePassword(pw)) {
+                    alert('비밀번호에는 공백을 사용할 수 없습니다.');
+                    $('#password').focus();
+                    return false;
+                }
+                if (pw == pwChk) {
+                    $('#pwMsg').text('비밀번호가 일치합니다.').removeClass('error').addClass('success');
+                } else {
+                    $('#pwMsg').text('비밀번호가 일치하지 않습니다.').removeClass('success').addClass('error');
+                }
+            });
+
+            // 아이디 중복 확인 (AJAX)
+            $('#btnChkId').click(function () {
+                var id = $('#id').val().trim();
+
+                if (id == '') {
+                    alert('아이디를 입력해주세요.');
+                    return;
+                }
+                if (checkSpaceId(id)) {
+                    alert('아이디에는 공백을 사용할 수 없습니다.');
+                    return;
+                }
+                $.ajax({
+                    url: '/instructor/member/overlapId',
+                    type: 'GET',
+                    data: { id: id },
+                    success: function (result) {
+                        if (result == 'available') {
+                            $('#idCheckMsg').text('사용 가능한 아이디입니다.').removeClass('error').addClass('success');
+                        } else {
+                            $('#idCheckMsg').text('사용불가능한 아이디입니다.').removeClass('success').addClass('error');
+                        }
+                    }
+                });
+            });
+            // 폼 제출 시 유효성 검사
+            $('#joinForm').submit(function () {
+                var id = $('#id').val().trim();
+                if (checkSpace(id)) {
+                    alert('아이디에는 공백을 사용할 수 없습니다.');
+                    $('#id').focus();
+                    return false;
+                }
+            });
+
+            // 이름 중복 확인 (AJAX)
+            $('#btnChkName').click(function () {
+                var name = $('#name').val().trim();
+
+                if (name == '') {
+                    alert('이름을 입력해주세요.');
+                    return;
+                }
+                if (checkSpaceName(name)) {
+                    alert('이름에는 공백을 사용할 수 없습니다.');
+                    return;
+                }
+                $.ajax({
+                    url: '/instructor/member/overlapName',
+                    type: 'GET',
+                    data: { name: name },
+                    success: function (result) {
+                        if (result == 'available') {
+                            $('#nameCheckMsg').text('사용 가능한 이름입니다.').removeClass('error').addClass('success');
+                        } else {
+                            $('#nameCheckMsg').text('사용불가능한 이름입니다.').removeClass('success').addClass('error');
+                        }
+                    }
+                });
+            });
+
+
+            // 전화번호 중복 확인 (AJAX)
+            $('#btnChkPhone').click(function () {
+                var phone = $('#phone').val().trim();
+
+                if (phone == '') {
+                    alert('전화번호를 입력해주세요.');
+                    return;
+                }
+                if (phone.length != 11) {
+                    alert('전화번호는 11자리여야 합니다.');
+                    return;
+                }
+                if (checkSpacePhone(phone)) {
+                    alert('전화번호에는 공백을 사용할 수 없습니다.');
+                    return;
+                }
+                // 숫자만 입력되었는지 확인
+                if (!/^\d+$/.test(phone)) {
+                    alert('전화번호는 숫자만 입력해주세요.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/instructor/member/overlapPhone',
+                    type: 'GET',
+                    data: { phone: phone },
+                    success: function (result) {
+                        if (result == 'available') {
+                            $('#phoneCheckMsg').text('사용 가능한 전화번호입니다.').removeClass('error').addClass('success');
+                        } else {
+                            $('#phoneCheckMsg').text('사용불가능한 전화번호입니다.').removeClass('success').addClass('error');
+                        }
+                    }
+                });
+            });
+
+            // 폼 제출 시 유효성 검사
+            $('#joinForm').submit(function () {
+                var name = $('#name').val().trim();
+                var phone = $('#phone').val().trim();
+                var birth = $('#birth').val();
+
+                if (checkSpaceName(name)) {
+                    alert('이름에는 공백을 사용할 수 없습니다.');
+                    $('#name').focus();
+                    return false;
+                }
+
+                // 전화번호 유효성 검사
+                if (phone != '') {
+                    if (phone.length != 11) {
+                        alert('전화번호는 11자리여야 합니다.');
+                        $('#phone').focus();
+                        return false;
+                    }
+                    if (!/^\d+$/.test(phone)) {
+                        alert('전화번호는 숫자만 입력해주세요.');
+                        $('#phone').focus();
+                        return false;
+                    }
+                }
+
+                // 생년월일 유효성 검사 (2019-12-31 체크)
+                // 선서 확인 (선서 문구가 정확히 일치하는지)
+                var oath = $('#oath').val().trim();
+                if (oath !== '나는 강사로서의 의무를 다하겠습니다') {
+                    alert('선서 문구를 정확히 입력해주세요.');
+                    $('#oath').focus();
+                    return false;
+                }
+
+                if (birth != '') {
+                    var birthDate = new Date(birth);
+                    var limitDate = new Date('2019-12-31');
+                    if (birthDate > limitDate) {
+                        alert('2019년 12월 31일 이전 출생자만 가입 가능합니다.');
+                        $('#birth').focus();
+                        return false;
+                    }
+                }
+            });
+        }); // ready
+    </script>
+</head>
+
+<body>
+    <div id="wrap">
+        <div id="header">
+            <th:block th:replace="~{fragments/header :: header}" />
+        </div>
+        <div id="container">
+            <div class="join-box">
+                <h2>강사 회원가입</h2>
+
+                <form id="joinForm" th:action="@{/instructor/member/joinProcess}" method="post">
+
+                    <div class="form-group">
+                        <label for="id">아이디 <span>*</span></label>
+                        <div class="input-group">
+                            <input type="text" id="id" name="instId" placeholder="아이디를 입력하세요">
+                            <button type="button" id="btnChkId" class="btn-dup-check">중복확인</button>
+                        </div>
+                        <div id="idCheckMsg" class="check-msg"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">비밀번호 <span>*</span></label>
+                        <input type="password" id="password" name="password" placeholder="비밀번호를 6자 이상 자유롭게 조합하여 입력하세요">
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordChk">비밀번호 확인 <span>*</span></label>
+                        <input type="password" id="passwordChk" placeholder="비밀번호를 한번 더 입력해주세요">
+                        <div id="pwMsg" class="check-msg"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">이름(닉네임) <span>*</span></label>
+                        <div class="input-group">
+                            <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+                            <button type="button" id="btnChkName" class="btn-dup-check">중복확인</button>
+                        </div>
+                        <div id="nameCheckMsg" class="check-msg"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">이메일 <span>*</span></label>
+                        <input type="email" id="email" name="email" placeholder="이메일을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">전화번호</label>
+                        <div class="input-group">
+                            <input type="tel" id="phone" name="phone" maxlength="11"
+                                placeholder="전화번호를 입력하세요 (- 제외 11자리)">
+                            <button type="button" id="btnChkPhone" class="btn-dup-check">중복확인</button>
+                        </div>
+                        <div id="phoneCheckMsg" class="check-msg"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="birth">생년월일 (2019년생까지 가입 가능)</label>
+                        <input type="date" id="birth" name="birth" max="2019-12-31">
+                    </div>
+
+                    <!-- ========== 강사 선서 영역 ========== -->
+                    <div class="oath-section">
+                        <h4>📜 강사 선서</h4>
+                        <div class="oath-text">
+                            <ul>
+                                <li>양질의 교육 콘텐츠를 제공하겠습니다</li>
+                                <li>학습자의 질문에 성실히 답변하겠습니다</li>
+                                <li>저작권 및 지적재산권을 준수하겠습니다</li>
+                                <li>부정확한 정보를 전달하지 않겠습니다</li>
+                                <li>다른 강사 및 학습자를 존중하겠습니다</li>
+                            </ul>
+                        </div>
+                        <div class="oath-input-area">
+                            <label>아래 문구를 그대로 입력해주세요 <span style="color:#e74c3c">*</span></label>
+                            <input type="text" id="oath" name="oath" placeholder="나는 강사로서의 의무를 다하겠습니다">
+                            <div class="oath-hint">※ 「나는 강사로서의 의무를 다하겠습니다」 를 정확히 입력해주세요.</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-join">가입하기</button>
+                </form>
+
+                <div class="links">
+                    <a href="/common/member/loginFrm">이미 계정이 있으신가요? 로그인</a>
+                </div>
+                <!-- 약관 모달창으로 간단하게 추가 -->
+            </div>
+        </div>
+        <div id="footer">
+            <th:block th:replace="~{fragments/footer :: footer}" />
+        </div>
+    </div>
+</body>
+
+</html>

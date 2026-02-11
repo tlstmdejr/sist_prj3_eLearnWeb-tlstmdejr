@@ -9,7 +9,7 @@
         INSERT INTO INSTRUCTOR (
             INST_ID, PASSWORD, NAME, PHONE, EMAIL, BIRTH, PROFILE, REGIP, APPROVAL, ACTIVATION, REGDATE
         ) VALUES (
-            #{instId}, #{password}, #{name}, #{phone}, #{email}, #{birth}, #{profile}, #{regip}, 0, 1, SYSDATE
+            #{instId}, #{password}, #{name}, #{phone, jdbcType=VARCHAR}, #{email}, #{birth, jdbcType=DATE}, #{profile, jdbcType=VARCHAR}, #{regip, jdbcType=VARCHAR}, 0, 1, SYSDATE
         )
     </insert>
 
@@ -18,6 +18,16 @@
         SELECT INST_ID
         FROM INSTRUCTOR
         WHERE INST_ID = #{id}
+    </select>
+
+    <!-- 이름 중복 확인 -->
+    <select id="selectName" resultType="String" parameterType="String">
+        SELECT NAME FROM INSTRUCTOR WHERE NAME = #{name}
+    </select>
+
+    <!-- 전화번호 중복 확인 -->
+    <select id="selectPhone" resultType="String" parameterType="String">
+        SELECT PHONE FROM INSTRUCTOR WHERE PHONE = #{phone} AND ROWNUM = 1
     </select>
     
 </mapper>

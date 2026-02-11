@@ -317,17 +317,6 @@
             </div>
             <button type="submit" class="btn-login">로그인</button>
         </form>
-        <!-- 로그인 폼 (기본: 강사 로그인) -->
-        <form id="loginForm" th:action="@{/instructor/member/login/loginProcess}" method="post">
-            <div class="form-group">
-                <input type="text" id="loginId" name="instId" placeholder="아이디">
-            </div>
-            <div class="form-group password-wrap">
-                <input type="password" id="loginPw" name="password" placeholder="비밀번호">
-                <button type="button" id="togglePw" class="toggle-pw">👁</button>
-            </div>
-            <button type="submit" class="btn-login">로그인</button>
-        </form>
 
         <!-- 하단 링크 - 사용자용 (기본 표시) -->
         <div class="links" id="userLinks">

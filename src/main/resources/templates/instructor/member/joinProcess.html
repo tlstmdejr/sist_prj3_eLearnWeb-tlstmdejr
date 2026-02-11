@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+	<th:block th:replace="~{fragments/cdn :: cdn}"></th:block>
+	<style type="text/css">
+		#wrap {
+			margin: 0px auto;
+			width: 1000px;
+			height: 1200px;
+		}
+
+		#header {
+			height: 150px;
+		}
+
+		#container {
+			height: 950px;
+		}
+
+		#footer {
+			height: 100px;
+		}
+	</style>
+
+	<script type="text/javascript">
+		$(function () {
+			$("#btn").click(function () {
+				$("#frm").submit();
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<div id="wrap">
+		<div id="header">헤더
+			<th:block th:replace="~{fragments/header :: header}"></th:block>
+		</div>
+		<div id="container">
+			<h2>회원가입 결과</h2>
+			<th:block th:if="${memberResult}">
+				<span th:text="${param.name}"></span>님 회원가입을 축하드립니다
+			</th:block>
+			<th:block th:unless="${memberResult}">
+				죄송합니다 잠시후 다시시도해주세요
+			</th:block>
+			<a th:href="@{/}">메인화면</a>
+		</div>
+		<div id="footer">푸터
+			<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+		</div>
+	</div>
+</body>
+
+</html>

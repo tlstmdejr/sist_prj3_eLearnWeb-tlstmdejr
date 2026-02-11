@@ -29,12 +29,6 @@ public class InstructorController {
 
     @PostMapping("/joinProcess")
     public String joinProcess(InstructorDTO iDTO, Model model) {
-        // 선서 확인
-        if (!"나는 강사로서의 의무를 다하겠습니다".equals(iDTO.getOath())) {
-            model.addAttribute("msg", "선서 내용이 올바르지 않습니다.");
-            return "instructor/member/joinFrm";
-        }
-
         if (instructorService.addInstructor(iDTO)) {
             return "instructor/member/joinSuccess";
         }
@@ -45,6 +39,24 @@ public class InstructorController {
     @ResponseBody
     public String overlapId(String id) {
         return instructorService.chkId(id);
+    }
+
+    /**
+     * 이름 중복 확인 (AJAX)
+     */
+    @GetMapping("/overlapName")
+    @ResponseBody
+    public String overlapName(String name) {
+        return instructorService.chkName(name);
+    }
+
+    /**
+     * 전화번호 중복 확인 (AJAX)
+     */
+    @GetMapping("/overlapPhone")
+    @ResponseBody
+    public String overlapPhone(String phone) {
+        return instructorService.chkPhone(phone);
     }
 
 }

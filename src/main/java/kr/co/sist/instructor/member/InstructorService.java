@@ -52,7 +52,34 @@ public class InstructorService {
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
-        return data;
+        // DB에 없으면(null) 사용 가능, 있으면 중복
+        return (data == null) ? "available" : "duplicate";
+    }
+
+    /**
+     * 이름 중복 확인
+     */
+    public String chkName(String name) {
+        String data = null;
+        try {
+            data = instructorMemberMapper.selectName(name);
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+        return (data == null) ? "available" : "duplicate";
+    }
+
+    /**
+     * 전화번호 중복 확인
+     */
+    public String chkPhone(String phone) {
+        String data = null;
+        try {
+            data = instructorMemberMapper.selectPhone(phone);
+        } catch (PersistenceException pe) {
+            pe.printStackTrace();
+        }
+        return (data == null) ? "available" : "duplicate";
     }
 
 }
