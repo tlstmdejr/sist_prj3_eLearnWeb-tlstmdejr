@@ -208,7 +208,7 @@
                 $('#tabInst').removeClass('active');
 
                 // 폼 action URL 변경 (사용자 로그인 처리 경로)
-                $('#loginForm').attr('action', '/user/member/login/loginProcess');
+                $('#loginForm').attr('action', '/user/login/loginProcess');
                 // input name 변경 (사용자는 'id' 파라미터 사용)
                 $('#loginId').attr('name', 'id');
                 // placeholder 변경
@@ -307,7 +307,7 @@
         <div class="error-msg" th:if="${msg}" th:text="${msg}"></div>
 
         <!-- 로그인 폼 (기본: 사용자 로그인) -->
-        <form id="loginForm" th:action="@{/user/member/login/loginProcess}" method="post">
+        <form id="loginForm" th:action="@{/user/login/loginProcess}" method="post">
             <div class="form-group">
                 <input type="text" id="loginId" name="id" placeholder="아이디">
             </div>
@@ -320,18 +320,18 @@
 
         <!-- 하단 링크 - 사용자용 (기본 표시) -->
         <div class="links" id="userLinks">
-            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
-            <span class="divider">|</span>
             <a href="/common/member/joinSelectFrm">회원가입</a>
+            <span class="divider">|</span>
+            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
             <span class="divider">|</span>
             <a href="/common/member/findIdFrm">아이디 찾기</a>
         </div>
 
         <!-- 하단 링크 - 강사용 (탭 전환 시 표시) -->
         <div class="links" id="instLinks" style="display: none;">
-            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
-            <span class="divider">|</span>
             <a href="/common/member/joinSelectFrm">회원가입</a>
+            <span class="divider">|</span>
+            <a href="/common/member/findPwFrm">비밀번호 찾기</a>
             <span class="divider">|</span>
             <a href="/common/member/findIdFrm">아이디 찾기</a>
         </div>

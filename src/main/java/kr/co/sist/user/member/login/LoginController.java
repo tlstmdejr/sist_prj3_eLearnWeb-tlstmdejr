@@ -15,7 +15,7 @@ import kr.co.sist.user.member.UserDTO;
 import kr.co.sist.user.member.UserDomain;
 
 // user 모듈의 로그인 컨트롤러 - 빈 이름을 명시적으로 지정하여 충돌 방지
-@RequestMapping("/user/member/login")
+@RequestMapping("/user/login")
 @Controller("userLoginController")
 public class LoginController {
 
@@ -24,8 +24,7 @@ public class LoginController {
 
 	@GetMapping("/loginFrm")
 	public String stuLogin() {
-
-		return "user/member/login/loginFrm";
+		return "common/member/loginFrm";
 	}
 
 	@PostMapping("/loginProcess")

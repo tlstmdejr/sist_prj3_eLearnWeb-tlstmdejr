@@ -250,6 +250,13 @@
                 });
             });
 
+            function validatePassword(password) {
+                // 1. 길이 체크 (8~32자) 및 공백 체크
+                const lengthValid = password.length >= 8 && password.length <= 32;
+                const noSpaces = !/\s/.test(password);
+                return lengthValid && noSpaces;
+            }
+
             // 3. 비밀번호 변경
             $('#btnResetPw').click(function () {
                 const newPw = $('#newPw').val();
@@ -257,6 +264,11 @@
 
                 if (!newPw || !confirmPw) { alert('비밀번호를 입력해주세요.'); return; }
                 if (newPw !== confirmPw) { alert('비밀번호가 일치하지 않습니다.'); return; }
+
+                if (!validatePassword(newPw)) {
+                    alert('비밀번호는 8자 이상 32자 이하이어야 하며, 공백을 포함할 수 없습니다.');
+                    return;
+                }
 
                 $.ajax({
                     url: '/common/member/resetPassword',

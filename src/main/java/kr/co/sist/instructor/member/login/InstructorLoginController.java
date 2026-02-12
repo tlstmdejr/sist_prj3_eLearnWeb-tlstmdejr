@@ -18,7 +18,7 @@ public class InstructorLoginController {
 
     @GetMapping("/loginFrm")
     public String loginFrm() {
-        return "instructor/member/login/loginFrm";
+        return "common/member/loginFrm";
     }
 
     private final InstructorLoginService instructorLoginService;
