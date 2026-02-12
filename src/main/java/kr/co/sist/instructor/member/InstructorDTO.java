@@ -9,6 +9,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class InstructorDTO {
-    private String instId, password, name, phone, email, profile, oath;
+    private String instId, password, name, phone, email, profile, oath, regip;
     private Date birth;
 }

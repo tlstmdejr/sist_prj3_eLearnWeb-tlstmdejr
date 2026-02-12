@@ -292,16 +292,6 @@
                     }
                 });
             });
-            // 폼 제출 시 유효성 검사
-            $('#joinForm').submit(function () {
-                var id = $('#id').val().trim();
-                if (checkSpace(id)) {
-                    alert('아이디에는 공백을 사용할 수 없습니다.');
-                    $('#id').focus();
-                    return false;
-                }
-            });
-
             // 이름 중복 확인 (AJAX)
             $('#btnChkName').click(function () {
                 var name = $('#name').val().trim();
@@ -365,12 +355,21 @@
                 });
             });
 
-            // 폼 제출 시 유효성 검사
+            // 폼 제출 시 유효성 검사 (통합)
             $('#joinForm').submit(function () {
+                var id = $('#id').val().trim();
                 var name = $('#name').val().trim();
                 var phone = $('#phone').val().trim();
                 var birth = $('#birth').val();
 
+                // 아이디 공백 검사
+                if (checkSpaceId(id)) {
+                    alert('아이디에는 공백을 사용할 수 없습니다.');
+                    $('#id').focus();
+                    return false;
+                }
+
+                // 이름 공백 검사
                 if (checkSpaceName(name)) {
                     alert('이름에는 공백을 사용할 수 없습니다.');
                     $('#name').focus();
@@ -391,7 +390,6 @@
                     }
                 }
 
-                // 생년월일 유효성 검사 (2019-12-31 체크)
                 // 선서 확인 (선서 문구가 정확히 일치하는지)
                 var oath = $('#oath').val().trim();
                 if (oath !== '나는 강사로서의 의무를 다하겠습니다') {
@@ -400,6 +398,7 @@
                     return false;
                 }
 
+                // 생년월일 유효성 검사 (2019-12-31 이전 출생자만 가입 가능)
                 if (birth != '') {
                     var birthDate = new Date(birth);
                     var limitDate = new Date('2019-12-31');

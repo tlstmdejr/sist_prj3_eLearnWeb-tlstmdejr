@@ -324,7 +324,12 @@
         </div>
     </div>
 
-    <script>
+    <script type="text/javascript">
+        function stripHtml(html) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
         /**
          * 회원 상세 모달 열기
          */
@@ -337,7 +342,7 @@
                     document.getElementById('modal-id').value = data.id || '';
                     document.getElementById('modal-name').value = data.name || '';
                     document.getElementById('modal-email').value = data.email || '';
-                    document.getElementById('modal-intro').value = data.intro || '';
+                    document.getElementById('modal-intro').value = stripHtml(data.intro || '');
 
                     // 계정 상태 표시
                     const activationText = data.activation === 1 ? '활성화' : '비활성화';

@@ -1,10 +1,11 @@
 package kr.co.sist.instructor.member;
 
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import kr.co.sist.instructor.member.InstructorDTO;
-import kr.co.sist.instructor.member.InstructorDomain;
-import kr.co.sist.instructor.member.InstructorMemberMapper;
+
+import kr.co.sist.common.util.CryptoUtil;
 
 /**
  * 강사 - 회원가입(Member) 서비스
@@ -14,35 +15,34 @@ public class InstructorService {
 
     private final InstructorMemberMapper instructorMemberMapper;
 
+    @Autowired
+    private CryptoUtil cryptoUtil; // 공통 암호화 유틸 주입
+
     public InstructorService(InstructorMemberMapper instructorMemberMapper) {
         this.instructorMemberMapper = instructorMemberMapper;
     }
 
     public boolean addInstructor(InstructorDTO iDTO) {
-        // 비밀번호 암호화
-        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        boolean flag = false;
+
+        // 비밀번호 단방향 암호화 (BCrypt)
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         iDTO.setPassword(encoder.encode(iDTO.getPassword()));
 
-        // DTO -> Domain 변환
-        InstructorDomain iDomain = new InstructorDomain();
-        iDomain.setInstId(iDTO.getInstId());
-        iDomain.setPassword(iDTO.getPassword());
-        iDomain.setName(iDTO.getName());
-        iDomain.setPhone(iDTO.getPhone());
-        iDomain.setEmail(iDTO.getEmail());
-        iDomain.setBirth(iDTO.getBirth());
-        iDomain.setProfile(iDTO.getProfile());
-        // IP는 Controller에서? 아니면 여기서? Controller에서 받아와야 함. 일단 null 처리하거나 추가.
-        // DTO에 regip가 없으므로... Controller에서 넣어서 DTO에 추가하거나 매개변수로 받아야 함.
-        // 여기서는 편의상 DTO에 regip 필드를 추가하는게 좋음. 일단 없이 진행하면 null 들어감.
+        // 개인정보 양방향 암호화 (AES) - 이름, 이메일
+        iDTO.setName(cryptoUtil.encrypt(iDTO.getName()));
+        String email = iDTO.getEmail();
+        if (email != null && !email.isEmpty()) {
+            iDTO.setEmail(cryptoUtil.encrypt(email));
+        }
 
-        int cnt = 0;
         try {
-            cnt = instructorMemberMapper.insertInstructor(iDomain);
+            instructorMemberMapper.insertInstructor(iDTO);
+            flag = true;
         } catch (PersistenceException pe) {
             pe.printStackTrace();
         }
-        return cnt > 0;
+        return flag;
     }
 
     public String chkId(String id) {
