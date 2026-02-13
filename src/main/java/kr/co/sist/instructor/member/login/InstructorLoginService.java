@@ -1,13 +1,17 @@
 package kr.co.sist.instructor.member.login;
 
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import kr.co.sist.instructor.member.InstructorDTO;
 import kr.co.sist.instructor.member.InstructorDomain;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 강사 - 로그인 서비스
  */
+@Slf4j
 @Service
 public class InstructorLoginService {
 
@@ -19,7 +23,7 @@ public class InstructorLoginService {
 
     /**
      * 강사 로그인
-     * 
+     *
      * @param iDTO 로그인 정보
      * @return 로그인 성공 시 강사 도메인, 실패 시 null
      */
@@ -27,9 +31,9 @@ public class InstructorLoginService {
         InstructorDomain iDomain = null;
         try {
             InstructorDomain tempDomain = instructorLoginMapper.selectInstructor(iDTO.getInstId());
-            if (tempDomain != null) {
+            if (tempDomain != null && tempDomain.getPassword() != null) {
                 // 비밀번호 확인 (BCrypt)
-                org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
                 boolean isMatch = encoder.matches(iDTO.getPassword(), tempDomain.getPassword());
                 if (!isMatch) {
@@ -45,7 +49,7 @@ public class InstructorLoginService {
                 }
             }
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 로그인 실패 - instId: {}", iDTO.getInstId(), pe);
         }
         return iDomain;
     }

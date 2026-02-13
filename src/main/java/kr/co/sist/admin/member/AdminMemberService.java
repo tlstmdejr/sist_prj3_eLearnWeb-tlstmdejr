@@ -1,9 +1,11 @@
 package kr.co.sist.admin.member;
 
+import java.util.Collections;
 import java.util.List;
 import kr.co.sist.user.member.UserDomain;
 import kr.co.sist.instructor.member.InstructorDomain;
 import kr.co.sist.common.util.CryptoUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
  * - 관리자 페이지에서 조회 시 복호화하여 표시
  * - CryptoUtil 공통 유틸리티 사용
  */
+@Slf4j
 @Service
 public class AdminMemberService {
 
@@ -41,14 +44,16 @@ public class AdminMemberService {
             list = adminMemberMapper.selectUserList();
 
             // 암호화된 정보 복호화
-            for (UserDomain user : list) {
-                user.setEmail(cryptoUtil.decryptSafe(user.getEmail()));
-                user.setName(cryptoUtil.decryptSafe(user.getName()));
+            if (list != null) {
+                for (UserDomain user : list) {
+                    user.setEmail(cryptoUtil.decryptSafe(user.getEmail()));
+                    user.setName(cryptoUtil.decryptSafe(user.getName()));
+                }
             }
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("사용자 목록 조회 실패", pe);
         }
-        return list;
+        return list != null ? list : Collections.emptyList();
     }
 
     /**
@@ -68,7 +73,7 @@ public class AdminMemberService {
                 user.setName(cryptoUtil.decryptSafe(user.getName()));
             }
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("사용자 조회 실패 - id: {}", id, pe);
         }
         return user;
     }
@@ -88,14 +93,16 @@ public class AdminMemberService {
             list = adminMemberMapper.selectInstructorList();
 
             // 암호화된 정보 복호화
-            for (InstructorDomain inst : list) {
-                inst.setEmail(cryptoUtil.decryptSafe(inst.getEmail()));
-                inst.setName(cryptoUtil.decryptSafe(inst.getName()));
+            if (list != null) {
+                for (InstructorDomain inst : list) {
+                    inst.setEmail(cryptoUtil.decryptSafe(inst.getEmail()));
+                    inst.setName(cryptoUtil.decryptSafe(inst.getName()));
+                }
             }
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 목록 조회 실패", pe);
         }
-        return list;
+        return list != null ? list : Collections.emptyList();
     }
 
     /**
@@ -115,7 +122,7 @@ public class AdminMemberService {
                 inst.setName(cryptoUtil.decryptSafe(inst.getName()));
             }
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 조회 실패 - instId: {}", instId, pe);
         }
         return inst;
     }
@@ -131,7 +138,7 @@ public class AdminMemberService {
         try {
             cnt = adminMemberMapper.updateInstructorStatus(instId);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 승인 처리 실패 - instId: {}", instId, pe);
         }
         return cnt > 0;
     }

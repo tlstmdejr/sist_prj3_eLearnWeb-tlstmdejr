@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import kr.co.sist.common.util.CryptoUtil;
 import kr.co.sist.user.member.UserDTO;
 import kr.co.sist.user.member.UserDomain;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 학생 로그인 관련 비즈니스 로직 Service
  * - Mapper Interface를 사용하여 DB 접근
  * - 빈 이름을 명시적으로 지정하여 다른 모듈과의 충돌 방지
  */
+@Slf4j
 @Service("userLoginService")
 public class LoginService {
 
@@ -49,9 +51,8 @@ public class LoginService {
 				}
 			}
 		} catch (PersistenceException pe) {
-			pe.printStackTrace();
+			log.error("유저 로그인 처리 실패 - id: {}", uDTO.getId(), pe);
 		}
 		return ud; // Controller에서 결과 확인 후 세션 처리
 	}
 }
-// class

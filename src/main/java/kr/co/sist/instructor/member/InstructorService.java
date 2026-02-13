@@ -6,10 +6,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import kr.co.sist.common.util.CryptoUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 강사 - 회원가입(Member) 서비스
  */
+@Slf4j
 @Service
 public class InstructorService {
 
@@ -40,7 +42,7 @@ public class InstructorService {
             instructorMemberMapper.insertInstructor(iDTO);
             flag = true;
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 등록 실패 - instId: {}", iDTO.getInstId(), pe);
         }
         return flag;
     }
@@ -50,7 +52,7 @@ public class InstructorService {
         try {
             data = instructorMemberMapper.selectId(id);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 아이디 중복확인 실패 - id: {}", id, pe);
         }
         // DB에 없으면(null) 사용 가능, 있으면 중복
         return (data == null) ? "available" : "duplicate";
@@ -64,7 +66,7 @@ public class InstructorService {
         try {
             data = instructorMemberMapper.selectName(name);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 이름 중복확인 실패", pe);
         }
         return (data == null) ? "available" : "duplicate";
     }
@@ -77,7 +79,7 @@ public class InstructorService {
         try {
             data = instructorMemberMapper.selectPhone(phone);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("강사 전화번호 중복확인 실패", pe);
         }
         return (data == null) ? "available" : "duplicate";
     }

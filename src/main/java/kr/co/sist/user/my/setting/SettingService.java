@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import kr.co.sist.common.util.CryptoUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 내 정보 설정 관련 비즈니스 로직 Service
@@ -18,6 +19,7 @@ import kr.co.sist.common.util.CryptoUtil;
  * [수정사항]
  * - CryptoUtil 공통 유틸리티 사용으로 암호화 키 불일치 방지
  */
+@Slf4j
 @Service
 public class SettingService {
 
@@ -52,7 +54,7 @@ public class SettingService {
             }
 
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("설정 정보 조회 실패 - userId: {}", userId, pe);
         }
 
         return sd;
@@ -75,7 +77,7 @@ public class SettingService {
         try {
             result = sm.updateImg(userId, imgPath);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("프로필 이미지 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -95,7 +97,7 @@ public class SettingService {
             name = cryptoUtil.encrypt(name);
             result = sm.updateNick(userId, name);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("닉네임 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -114,7 +116,7 @@ public class SettingService {
         try {
             result = sm.updateIntro(userId, intro);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("자기소개 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -150,7 +152,7 @@ public class SettingService {
             String encryptedEmail = cryptoUtil.encrypt(email);
             result = sm.updateEmail(userId, encryptedEmail);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("이메일 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -181,7 +183,7 @@ public class SettingService {
             result = sm.updatePass(userId, encodedPass);
 
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("비밀번호 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -200,7 +202,7 @@ public class SettingService {
         try {
             result = sm.updatePhone(userId, phone);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("휴대폰 번호 변경 실패 - userId: {}", userId, pe);
         }
 
         return result;
@@ -217,7 +219,7 @@ public class SettingService {
         try {
             result = sm.updateActivation(userId);
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("회원 탈퇴 처리 실패 - userId: {}", userId, pe);
         }
         return result;
     }

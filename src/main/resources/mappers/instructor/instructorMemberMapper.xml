@@ -27,7 +27,7 @@
 
     <!-- 전화번호 중복 확인 -->
     <select id="selectPhone" resultType="String" parameterType="String">
-        SELECT PHONE FROM INSTRUCTOR WHERE PHONE = #{phone} AND ROWNUM = 1
+        SELECT PHONE FROM INSTRUCTOR WHERE PHONE = #{phone} AND ROWNUM &lt;= 1
     </select>
     
 </mapper>

@@ -6,12 +6,14 @@ import org.springframework.stereotype.Service;
 
 import kr.co.sist.common.util.CryptoUtil;
 import kr.co.sist.user.member.UserDomain;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 내 프로필 관련 비즈니스 로직 Service
  * - 프로필 사진 & 닉네임 & 아이디 조회
  * - 자기소개 조회
  */
+@Slf4j
 @Service
 public class ProfileService {
 
@@ -41,7 +43,7 @@ public class ProfileService {
             }
 
         } catch (PersistenceException pe) {
-            pe.printStackTrace();
+            log.error("프로필 조회 실패 - userId: {}", userId, pe);
         }
 
         return ud;

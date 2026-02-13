@@ -40,8 +40,14 @@
 			<th:block th:replace="~{fragments/header :: header}"></th:block>
 		</div>
 		<div id="container">
-			<h2>로그인</h2>
-			<div th:text="${errMsg}"></div>
+			<h2>회원가입 결과</h2>
+			<th:block th:if="${memberResult}">
+				<span th:text="${param.name}"></span>님 회원가입을 축하드립니다
+			</th:block>
+			<th:block th:unless="${memberResult}">
+				죄송합니다 잠시후 다시시도해주세요
+			</th:block>
+			<a th:href="@{/}">메인화면</a>
 		</div>
 		<div id="footer">푸터
 			<th:block th:replace="~{fragments/footer :: footer}"></th:block>
