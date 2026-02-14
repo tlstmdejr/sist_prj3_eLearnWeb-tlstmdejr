@@ -275,18 +275,27 @@ python3 -m http.server 8080
 # http://localhost:8080/index.html 접속
 ```
 
-### Spring Boot와 연동
+### Spring Boot와 연동 (실제 데이터베이스 스키마 사용)
 ```java
-// 1. Controller 작성
+// 1. Controller 작성 (실제 테이블 사용)
 @GetMapping("/")
 public String mainPage(Model model) {
-    model.addAttribute("courses", courseService.getCourses());
+    // 카테고리 목록 조회 (CATEGORY 테이블)
+    List<CategoryVO> categories = courseService.selectCategoryList();
+    
+    // 강의 목록 조회 (LECTURE, INSTRUCTOR, REVIEW 테이블 조인)
+    List<LectureVO> lectures = courseService.selectLectureList();
+    
+    model.addAttribute("categories", categories);
+    model.addAttribute("lectures", lectures);
     return "common/main/index";
 }
 
-// 2. HTML에서 Thymeleaf 사용
-<div th:each="course : ${courses}">
-    <h3 th:text="${course.title}">제목</h3>
+// 2. HTML에서 Thymeleaf 사용 (실제 컬럼명 사용)
+<div th:each="lecture : ${lectures}">
+    <h3 th:text="${lecture.name}">강의명</h3>
+    <p th:text="${lecture.instructorName}">강사명</p>
+    <span th:text="${#numbers.formatInteger(lecture.price, 0, 'COMMA')} + '원'">가격</span>
 </div>
 ```
 
