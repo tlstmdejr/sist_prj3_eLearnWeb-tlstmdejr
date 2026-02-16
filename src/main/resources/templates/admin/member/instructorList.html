@@ -200,6 +200,42 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 6px 11px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 13px;
+            background-color: #fff;
+        }
+
+        .page-link:hover {
+            background-color: #f2f2f2;
+        }
+
+        .page-link.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+            pointer-events: none;
+        }
+
+        .page-link.disabled {
+            color: #aaa;
+            background-color: #f5f5f5;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -246,6 +282,22 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 1}" class="page-link"
+           th:href="@{/admin/member/instructorList(page=${currentPage - 1}, size=${pageSize})}">이전</a>
+        <span th:unless="${currentPage > 1}" class="page-link disabled">이전</span>
+
+        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+            <a th:if="${i != currentPage}" class="page-link"
+               th:href="@{/admin/member/instructorList(page=${i}, size=${pageSize})}" th:text="${i}">1</a>
+            <span th:if="${i == currentPage}" class="page-link active" th:text="${i}">1</span>
+        </th:block>
+
+        <a th:if="${currentPage < totalPages}" class="page-link"
+           th:href="@{/admin/member/instructorList(page=${currentPage + 1}, size=${pageSize})}">다음</a>
+        <span th:unless="${currentPage < totalPages}" class="page-link disabled">다음</span>
+    </div>
 
     <!-- ================ 강사 상세 모달 ================ -->
     <div class="modal-overlay" id="instructorModal">
