@@ -12,7 +12,7 @@
 
     <select id="selectUserListByPage" resultType="UserDomain">
         SELECT
-            a.id, a.name, a.phone, a.email, a.intro, a.img, a.regdate, a.regip, a.activation
+            u.id, u.name, u.phone, u.email, u.intro, u.img, u.regdate, u.regip, u.activation
         FROM (
             SELECT
                 USER_ID as id,
@@ -26,9 +26,9 @@
                 ACTIVATION as activation,
                 ROW_NUMBER() OVER (ORDER BY REGDATE DESC) as rnum
             FROM USERS
-        ) a
-        WHERE a.rnum BETWEEN #{startRow} AND #{endRow}
-        ORDER BY a.rnum
+        ) as u
+        WHERE u.rnum BETWEEN #{startRow} AND #{endRow}
+        ORDER BY u.rnum
     </select>
 
     <select id="selectUserCount" resultType="int">
@@ -50,7 +50,7 @@
 
     <select id="selectInstructorListByPage" resultType="InstructorDomain">
         SELECT
-            a.instId, a.name, a.email, a.phone, a.profile, a.regdate, a.regip, a.approval, a.activation
+            i.instId, i.name, i.email, i.phone, i.profile, i.regdate, i.regip, i.approval, i.activation
         FROM (
             SELECT
                 INST_ID as instId,
@@ -64,9 +64,9 @@
                 ACTIVATION as activation,
                 ROW_NUMBER() OVER (ORDER BY REGDATE DESC) as rnum
             FROM INSTRUCTOR
-        ) a
-        WHERE a.rnum BETWEEN #{startRow} AND #{endRow}
-        ORDER BY a.rnum
+        ) as i
+        WHERE i.rnum BETWEEN #{startRow} AND #{endRow}
+        ORDER BY i.rnum
     </select>
 
     <select id="selectInstructorCount" resultType="int">
