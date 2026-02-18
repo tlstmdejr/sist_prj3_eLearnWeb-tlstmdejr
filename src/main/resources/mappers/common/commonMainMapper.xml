@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.sist.common.main.CommonMainMapper">
+
+<select id="selectCategoryList" resultType="CommonMainDomain">
+SELECT CAT_ID AS catId, NAME AS catName
+FROM CATEGORY
+ORDER BY CAT_ID
+</select>
+
+<select id="selectCourseList" resultType="CommonMainDomain">
+SELECT
+    L.LECT_ID AS lectId,
+    L.NAME AS title,
+    I.NAME AS instructor,
+    L.PRICE AS price,
+    L.SHORTINT AS shortint,
+    L.CAT_ID AS category,
+    L.THUMBNAIL AS thumbnail,
+    L.USERCOUNT AS usercount,
+    NVL(ROUND(AVG(R.SCORE), 1), 0) AS rating,
+    COUNT(R.REVIEW_ID) AS reviewCount
+FROM LECTURE L
+    JOIN INSTRUCTOR I ON L.INST_ID = I.INST_ID
+    LEFT JOIN REVIEW R ON L.LECT_ID = R.LECT_ID
+WHERE L.APPROVAL = 1 AND L.AVAILABILITY = 1
+GROUP BY L.LECT_ID, L.NAME, I.NAME, L.PRICE, L.SHORTINT,
+         L.CAT_ID, L.THUMBNAIL, L.USERCOUNT, L.REGDATE
+ORDER BY L.REGDATE DESC
+</select>
+
+</mapper>
