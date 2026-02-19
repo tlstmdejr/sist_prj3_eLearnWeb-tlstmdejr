@@ -35,13 +35,13 @@ public class LoginController {
 
 		if (ud != null) { // 로그인 성공
 			// 세션에 필요한 정보 저장
-			session.setAttribute("userId", ud.getId());
-			session.setAttribute("userName", ud.getName());
-			session.setAttribute("userEmail", ud.getEmail());
+			session.setAttribute("UserId", ud.getId());
+			session.setAttribute("UserName", ud.getName());
+			session.setAttribute("UserEmail", ud.getEmail());
 
 			System.out.println("세션 설정 완료: " + session.getId());
-			System.out.println("세션 설정 완료: " + session.getAttribute("userName"));
-			System.out.println("세션 설정 완료: " + session.getAttribute("userEmail"));
+			System.out.println("세션 설정 완료: " + session.getAttribute("UserName"));
+			System.out.println("세션 설정 완료: " + session.getAttribute("UserEmail"));
 			System.out.println("SET userId: " + ud.getId());
 
 			return "redirect:/"; // 메인 페이지로 이동
@@ -56,11 +56,11 @@ public class LoginController {
 	public String logout(HttpSession session) {
 		System.out.println("---- 로그아웃 요청 진입 ----");
 		System.out.println("세션 ID: " + session.getId());
-		System.out.println("삭제 전 userId: " + session.getAttribute("userId"));
+		System.out.println("삭제 전 userId: " + session.getAttribute("UserId"));
 
-		session.removeAttribute("userId");
-		session.removeAttribute("userName");
-		session.removeAttribute("userEmail");
+		session.removeAttribute("UserId");
+		session.removeAttribute("UserName");
+		session.removeAttribute("UserEmail");
 
 		session.invalidate();
 
